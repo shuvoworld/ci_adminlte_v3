@@ -112,6 +112,28 @@ if ($serialize_permission) {
                       </tr>
 
                       <tr>
+                        <td>Group</td>
+                        <td><input type="checkbox" class="minimal" name="permission[]" id="permission" class="minimal" value="createGroup" <?php if ($serialize_permission) {
+  if (in_array('createGroup', $serialize_permission)) {echo "checked";}
+}?> ></td>
+                        <td><input type="checkbox" name="permission[]" id="permission" class="minimal" value="updateGroup" <?php
+if ($serialize_permission) {
+  if (in_array('updateGroup', $serialize_permission)) {echo "checked";}
+}
+?>></td>
+                        <td><input type="checkbox" name="permission[]" id="permission" class="minimal" value="viewGroup" <?php
+if ($serialize_permission) {
+  if (in_array('viewGroup', $serialize_permission)) {echo "checked";}
+}
+?>></td>
+                        <td><input type="checkbox" name="permission[]" id="permission" class="minimal" value="deleteGroup" <?php
+if ($serialize_permission) {
+  if (in_array('deleteGroup', $serialize_permission)) {echo "checked";}
+}
+?>></td>
+                      </tr>
+
+                      <tr>
                         <td>Users</td>
                         <td><input type="checkbox" class="minimal" name="permission[]" id="permission" class="minimal" value="createUser" <?php if ($serialize_permission) {
 	if (in_array('createUser', $serialize_permission)) {echo "checked";}

@@ -1,10 +1,13 @@
 <?php
-class Customer_model extends CI_Model {
-	public function __construct() {
+class Customer_model extends CI_Model
+{
+	public function __construct()
+	{
 		parent::__construct();
 	}
 
-	public function getCustomerData($id = null) {
+	public function getCustomerData($id = null)
+	{
 		if ($id) {
 			$sql = "SELECT * FROM customers where customerNumber = ?";
 			$query = $this->db->query($sql, array($id));
@@ -16,10 +19,26 @@ class Customer_model extends CI_Model {
 		return $query->result_array();
 	}
 
-	public function create($data) {
+	public function create($data)
+	{
 		if ($data) {
 			$insert = $this->db->insert('customers', $data);
 			return ($insert == true) ? true : false;
 		}
+	}
+
+	public function edit($data = array(), $id = null)
+	{
+		$this->db->where('customerNumber', $id);
+		$update = $this->db->update('customers', $data);
+
+		return ($update == true) ? true : false;
+	}
+
+
+	public function delete($id)
+	{
+		$result = $this->db->delete('customers', array('customerNumber' => $id));
+		return $result;
 	}
 }

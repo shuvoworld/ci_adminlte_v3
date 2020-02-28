@@ -1,19 +1,20 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');?>
+<?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-    	<?php
-if (isset($page_title)) {
-	echo $page_title;
-}
-?>
 
-</title>
-    <!-- Font Awesome -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    <?php
+    if (isset($page_title)) {
+      echo $page_title;
+    }
+    ?>
+
+  </title>
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/adminlte/plugins/fontawesome-free/css/all.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
@@ -32,32 +33,34 @@ if (isset($page_title)) {
   <!-- summernote -->
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/adminlte/plugins/summernote/summernote-bs4.css">
 
-    <!-- DataTables -->
+  <!-- DataTables -->
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.css">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed">
-<div class="wrapper">
+  <div class="wrapper">
 
 
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+      <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="<?php echo base_url(); ?>profile" class="nav-link">Profile</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a class="nav-link" href="<?php echo site_url('auth/logout'); ?>">Logout</a>
+        </li>
+      </ul>
 
 
-  <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <!-- Left navbar links -->
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="<?php echo base_url(); ?>participant/participants_management" class="nav-link">Participants</a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a class="nav-link" href="<?php echo site_url('auth/logout'); ?>">Logout</a>
-      </li>
-    </ul>
-
-    
-  </nav>
-  <!-- /.navbar -->
+    </nav>
+    <!-- /.navbar -->

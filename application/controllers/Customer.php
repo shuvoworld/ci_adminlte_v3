@@ -1,24 +1,28 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Customer extends Admin_Controller {
+class Customer extends Admin_Controller
+{
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
 		$this->data['page_title'] = 'Customer';
 		$this->load->model('Customer_model');
 	}
 
-	public function index() {
-		// if (!in_array('viewCustomer', $this->permission)) {
-		// 	redirect('dashboard', 'refresh');
-		// }
-
+	public function index()
+	{
+		if (!in_array('viewCustomer', $this->permission)) {
+			$this->toastr->error('You do not have view permission');
+			redirect('admin/dashboard', 'refresh');
+		}
 		$this->render('customers/index', $this->data);
 	}
 
-	public function fetchCustomerData() {
+	public function fetchCustomerData()
+	{
 		$result = array('data' => array());
 
 		$data = $this->Customer_model->getCustomerData();
@@ -26,13 +30,13 @@ class Customer extends Admin_Controller {
 		foreach ($data as $key => $value) {
 			// button
 			$buttons = '';
-			//if (in_array('updateCustomer', $this->permission)) {
-			$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-primary btn-sm">Edit</a>';
-			//}
+			if (in_array('updateCustomer', $this->permission)) {
+				$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-primary btn-sm">Edit</a>';
+			}
 
-			//if (in_array('deleteCustomer', $this->permission)) {
-			$buttons .= ' <button type="button" class="btn btn-danger btn-sm" onclick="removeFunc(' . $value['customerNumber'] . ')" data-toggle="modal" data-target="#removeModal">Delete</button>';
-			//}
+			if (in_array('deleteCustomer', $this->permission)) {
+				$buttons .= "<a data-toggle='tooltip' class='btn btn-danger btn-sm  delete'  id='" . $value['customerNumber'] . "' title='Delete'> Delete</a>";
+			}
 
 			$result['data'][$key] = array(
 				$value['customerNumber'],
@@ -48,7 +52,13 @@ class Customer extends Admin_Controller {
 		echo json_encode($result);
 	}
 
-	public function create() {
+	public function create()
+	{
+
+		if (!in_array('createCustomer', $this->permission)) {
+			$this->toastr->error('You do not have create permission');
+			redirect('admin/dashboard', 'refresh');
+		}
 
 		$this->form_validation->set_rules('customerName', 'Customer name', 'required');
 		$this->form_validation->set_rules('phone', 'Phone', 'required');
@@ -70,10 +80,10 @@ class Customer extends Admin_Controller {
 			$create = $this->Customer_model->create($data);
 
 			if ($create == true) {
-				$this->session->set_flashdata('success', 'Successfully created');
+				$this->toastr->success('Successfully created!');
 				redirect('Customer/', 'refresh');
 			} else {
-				$this->session->set_flashdata('errors', 'Error occurred!!');
+				$this->toastr->error('Create failed!');
 				redirect('Customer/create', 'refresh');
 			}
 		} else {
@@ -87,42 +97,68 @@ class Customer extends Admin_Controller {
 		        * If the validation is successfully then it updates the data into the database
 		        * and it stores the operation message into the session flashdata and display on the manage group page
 	*/
-	public function edit($id = null) {
+	public function edit($id = null)
+	{
 
-		// if (!in_array('updateGroup', $this->permission)) {
-		//  redirect('dashboard', 'refresh');
-		// }
+		if (!in_array('updateCustomer', $this->permission)) {
+			$this->toastr->error('You do not have update permission');
+			redirect('admin/dashboard', 'refresh');
+		}
 
 		if ($id) {
 
-			$this->form_validation->set_rules('name', 'Group name', 'required');
+			$this->form_validation->set_rules('customerName', 'name', 'required');
 
 			if ($this->form_validation->run() == TRUE) {
 				// true case
 				$permission = serialize($this->input->post('permission'));
 
 				$data = array(
-					'description' => $this->input->post('description'),
-					'permission' => $permission,
+					'customerName' => $this->input->post('customerName'),
+					'contactLastName' => $this->input->post('contactLastName'),
+					'contactFirstName' => $this->input->post('contactFirstName'),
+					'phone' => $this->input->post('phone'),
+					'addressLine1' => $this->input->post('addressLine1'),
+					'addressLine2' => $this->input->post('addressLine2'),
+					'country' => $this->input->post('country'),
+					'city' => $this->input->post('city'),
+					'state' => $this->input->post('state'),
+					'postalCode' => $this->input->post('postalCode'),
 				);
 
-				$update = $this->ion_auth->update_group($id, $this->input->post('name'), $data);
+				$update = $this->Customer_model->edit($data, $id, $this->input->post('groups'));
 
 				if ($update == true) {
 					$this->session->set_flashdata('success', 'Successfully updated');
-					redirect('Group/', 'refresh');
+					redirect('Customer/', 'refresh');
 				} else {
 					$this->session->set_flashdata('errors', 'Error occurred!!');
-					redirect('Group/edit/' . $id, 'refresh');
+					redirect('Customer/edit/' . $id, 'refresh');
 				}
 			} else {
 				// false case
-				$group_data = $this->group_model->getGroupData($id);
-				//print_r($group_data);die();
-				$this->data['group_data'] = $group_data;
-				$this->render('groups/edit', $this->data);
+				$customer_data = $this->Customer_model->getCustomerData($id);
+				$this->data['customer_data'] = $customer_data;
+				$this->render('customers/edit', $this->data);
 			}
 		}
 	}
 
+	public function delete()
+	{
+		header('Content-Type: application/json');
+		$id = $this->input->post('id');
+
+		$result = $this->Customer_model->delete($id);
+
+		if ($result) {
+			$response_array['type'] = 'success';
+			$response_array['message'] = '<div class="alert alert-success alert-dismissable"><i class="icon fa fa-check"></i> Successfully Deleted. </div>';
+			echo json_encode($response_array);
+		} else {
+			$response_array['type'] = 'danger';
+			$response_array['message'] = '<div class="alert alert-danger alert-dismissable"><i class="icon fa fa-times"></i> Sorry! Failed.</div>';
+			echo json_encode($response_array);
+		}
+	}
 }
