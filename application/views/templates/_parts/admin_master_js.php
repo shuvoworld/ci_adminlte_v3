@@ -45,6 +45,8 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<!-- https://plugins.krajee.com/file-krajee-explorer-demo -->
 <script src="<?php echo base_url('assets/plugins/fileinput/fileinput.min.js') ?>"></script>
 
 <!-- Sweet Alert library -->
