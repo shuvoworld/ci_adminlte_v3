@@ -30,7 +30,7 @@
                             <h3 class="card-title">Create New Customer</h3>
                         </div>
                         <!-- /.card-header -->
-                        <form role="form" action="<?php base_url('Customer/create') ?>" method="post">
+                        <form role="form" action="<?php base_url('Customer/edit') ?>" method="post" enctype="multipart/form-data">
                             <div class="card-body">
                                 <?php if (validation_errors()) { ?>
                                     <div class="alert alert-danger">
@@ -38,6 +38,21 @@
                                         <ul><?php echo (validation_errors('<li>', '</li>')); ?></ul>
                                     </div>
                                 <?php } ?>
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label>Image Preview: </label>
+                                        <img src="<?php echo base_url() . $customer_data['image'] ?>" width="150" height="150" class="img-circle">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="product_image">Update Image</label>
+                                    <div class="kv-avatar">
+                                        <div class="file-loading">
+                                            <input id="customer_image" name="customer_image" type="file">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="form-group col-3">
                                         <label for="groupName">Customer Name</label>
@@ -106,3 +121,31 @@
         <!-- /.content -->
     </section>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var btnCust = '<button type="button" class="btn btn-info" title="Add picture tags" ' +
+            'onclick="alert(\'Call your custom code here.\')">' +
+            'Custom Tag' +
+            '</button>';
+        $("#customer_image").fileinput({
+            overwriteInitial: true,
+            maxFileSize: 1500,
+            showClose: false,
+            showCaption: false,
+            browseLabel: 'Browse',
+            removeLabel: 'Remove',
+            browseIcon: 'Icon',
+            removeIcon: 'Remove',
+            removeTitle: 'Cancel or reset changes',
+            elErrorContainer: '#kv-avatar-errors-1',
+            msgErrorClass: 'alert alert-block alert-danger',
+            // defaultPreviewContent: '<img src="/uploads/default_avatar_male.jpg" alt="Your Avatar">',
+            layoutTemplates: {
+                main2: '{preview} ' + btnCust + ' {remove} {browse}'
+            },
+            allowedFileExtensions: ["jpg", "png", "gif"]
+        });
+
+    });
+</script>

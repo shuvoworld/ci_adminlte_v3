@@ -110,8 +110,6 @@ class Customer extends Admin_Controller
 			$this->form_validation->set_rules('customerName', 'name', 'required');
 
 			if ($this->form_validation->run() == TRUE) {
-				// true case
-				$permission = serialize($this->input->post('permission'));
 
 				$data = array(
 					'customerName' => $this->input->post('customerName'),
@@ -126,7 +124,14 @@ class Customer extends Admin_Controller
 					'postalCode' => $this->input->post('postalCode'),
 				);
 
-				$update = $this->Customer_model->edit($data, $id, $this->input->post('groups'));
+				if ($_FILES['customer_image']['size'] > 0) {
+					$upload_image = $this->upload_image();
+					$upload_image = array('image' => $upload_image);
+
+					$this->Customer_model->edit($upload_image, $id);
+				}
+
+				$update = $this->Customer_model->edit($data, $id);
 
 				if ($update == true) {
 					$this->session->set_flashdata('success', 'Successfully updated');
@@ -141,6 +146,31 @@ class Customer extends Admin_Controller
 				$this->data['customer_data'] = $customer_data;
 				$this->render('customers/edit', $this->data);
 			}
+		}
+	}
+
+	public function upload_image()
+	{
+		// assets/images/product_image
+		$config['upload_path'] = 'assets/uploads';
+		$config['file_name'] =  uniqid();
+		$config['allowed_types'] = 'gif|jpg|png';
+		$config['max_size'] = '1000';
+
+		// $config['max_width']  = '1024';s
+		// $config['max_height']  = '768';
+
+		$this->load->library('upload', $config);
+		if (!$this->upload->do_upload('customer_image')) {
+			$error = $this->upload->display_errors();
+			return $error;
+		} else {
+			$data = array('upload_data' => $this->upload->data());
+			$type = explode('.', $_FILES['customer_image']['name']);
+			$type = $type[count($type) - 1];
+
+			$path = $config['upload_path'] . '/' . $config['file_name'] . '.' . $type;
+			return ($data == true) ? $path : false;
 		}
 	}
 
