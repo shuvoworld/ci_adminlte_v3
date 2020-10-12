@@ -12,6 +12,7 @@
       echo $page_title;
     }
     ?>
+    
 
   </title>
   <!-- Font Awesome -->

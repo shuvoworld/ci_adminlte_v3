@@ -49,6 +49,9 @@ class Admin_Controller extends MY_Controller
 
 		$this->data['page_title'] = 'Custom Admin Panel';
 	}
+
+
+
 	protected function render($page = null, $data = array())
 	{
 		parent::render($page, $data);
