@@ -22,32 +22,21 @@ return [
     // The environment is important so we can have specific configurations for specific environments
     'environment' => 'development',
 
-    // The default skin that Grocery CRUD will use. Currently you can choose between 'bootstrap-v3' and 'bootstrap-v4'
-    'skin' => 'bootstrap-v4',
+    // The default skin that Grocery CRUD will use. Currently choose between 'bootstrap-v3' and 'bootstrap-v4'
+    'skin' => 'bootstrap-v3',
 
     // This is basically in order to have some basic cache for the initial calls mainly for field types
     // of a database table
     'backend_cache' => false,
 
-    // Automatically cleans all the inputs by trimming strings and by completely removing any HTML tag
-    // to prevent XSS attacks. This is a global configuration for all the inputs so be aware in case you
-    // switch this to true
     'xss_clean' => false,
 
     // The character limiter at the datagrid columns, zero(0) value if you don't want any character
     // limitation to the column
     'column_character_limiter' => 50,
 
-    // Configuration for the texteditor. You can choose between 'minimal' or 'full'
+    // You can choose between 'minimal' or 'full'
     'text_editor_type' => 'full',
-
-    // The allowed file types on upload. If the file extension doesn't exist in the array
-    // it will throw an error and the upload will not be completed
-    'upload_allowed_file_types' =>  [
-        'gif', 'jpeg', 'jpg', 'png', 'svg', 'tiff', 'doc', 'docx',  'rtf', 'txt', 'odt', 'xls', 'xlsx', 'pdf',
-        'ppt', 'pptx', 'pps', 'ppsx', 'mp3', 'm4a', 'ogg', 'wav', 'mp4', 'm4v', 'mov', 'wmv', 'flv', 'avi',
-        'mpg', 'ogv', '3gp', '3g2'
-    ],
 
     // If open_in_modal is true then all the form operations (e.g. add, edit, clone... e.t.c.) will
     // open within a modal and we will have the datagrid on the background.
