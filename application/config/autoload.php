@@ -136,7 +136,7 @@ $autoload['helper'] = array('url', 'form');
 |
  */
 
-$autoload['config'] = array('cms_settings');
+$autoload['config'] = array();
 
 /*
 | -------------------------------------------------------------------
