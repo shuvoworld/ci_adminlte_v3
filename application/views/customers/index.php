@@ -1,9 +1,4 @@
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
+<!-- <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"> -->
 
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -53,13 +48,6 @@
       <!-- /.card -->
 </div>
 <!-- /.col -->
-</div>
-<!-- /.row -->
-</section>
-<!-- /.content -->
-
-</section>
-</div>
 
 <script type="text/javascript">
   var manageTable;
@@ -67,7 +55,6 @@
 
   $(document).ready(function() {
     manageTable = $('#customerTable').DataTable({
-      "lengthChange": false,
       dom: 'Blfrtip',
       buttons: [{
           extend: 'copy',
@@ -108,13 +95,11 @@
           dataType: 'json',
           data: 'id=' + id,
           success: function(data) {
-
             if (data.type === 'success') {
               swal("Done!", "It was succesfully deleted!", "success");
               reload_table();
 
             } else if (data.type === 'danger') {
-
               swal("Error deleting!", "Please try again", "error");
 
             }

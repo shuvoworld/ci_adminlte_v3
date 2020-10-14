@@ -1,12 +1,11 @@
-<?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
-<!-- /.content-wrapper -->
 <footer class="main-footer">
-  <strong>Copyright &copy; 2020 <a href="https://bpathshala.org">Md. Enamul haque</a>.</strong>
+  <strong>Copyright &copy; 2020 <a href="#">Md. Enamul haque</a>.</strong>
   All rights reserved.
   <div class="float-right d-none d-sm-inline-block">
     <b>Contact - </b>Phone: +88-01675000148, Email: shuvoworld@gmail.com
   </div>
 </footer>
+
 
 <!-- Control Sidebar -->
 <aside class="control-sidebar control-sidebar-dark">
@@ -16,13 +15,12 @@
 </div>
 <!-- ./wrapper -->
 
-
 <script src="<?php echo base_url(); ?>assets/adminlte/plugins/jquery/jquery.min.js"></script>
 <!-- jQuery UI 1.11.4 -->
 <script src="<?php echo base_url(); ?>assets/adminlte/plugins/jquery-ui/jquery-ui.min.js"></script>
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
-  $.widget.bridge('uibutton', $.ui.button)
+    $.widget.bridge('uibutton', $.ui.button)
 </script>
 <!-- Bootstrap 4 -->
 <script src="<?php echo base_url(); ?>assets/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -54,6 +52,7 @@
 <!-- AdminLTE for demo purposes -->
 <script src="<?php echo base_url(); ?>assets/adminlte/js/demo.js"></script>
 <script src="<?php echo base_url(); ?>assets/adminlte/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
 
@@ -63,51 +62,21 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-<script>
-  $(function() {
-    $('.datatable').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false,
-      dom: 'Blfrtip',
-      buttons: [{
-          extend: 'copy',
-          text: '<i class="fas fa-file"></i>',
-          className: 'btn btn-primary'
-        },
-        {
-          extend: 'excel',
-          text: '<i class="fas fa-file-excel"></i>',
-          className: 'btn btn-warning'
-        }
-      ]
-    });
-  });
-</script>
 
-<script>
-  $(function() {
-    $('.datepicker').datepicker({});
-  });
-</script>
+<!-- https://plugins.krajee.com/file-krajee-explorer-demo -->
+<script src="<?php echo base_url('assets/plugins/fileinput/fileinput.min.js') ?>"></script>
 
-<?php
-// Only load this for Grocery CRUD
-if (isset($output)) {
-  foreach ($css_files as $file) : ?>
-    <link type="text/css" rel="stylesheet" href="<?php echo $file; ?>" />
-  <?php endforeach; ?>
-  <?php foreach ($js_files as $file) : ?>
-    <script src="<?php echo $file; ?>"></script>
-  <?php endforeach; ?>
-  <script type="text/javascript">
-    var BASE_URL = "<?php echo base_url(); ?>";
-  </script>
-<?php } ?>
+<!-- Sweet Alert library -->
+<link rel="stylesheet" href="<?php echo base_url('assets/plugins/sweet-alert/sweetalert.css'); ?>">
+<script src="<?php echo base_url('assets/plugins/sweet-alert/sweetalert.min.js'); ?>"></script>
 
+<script src="<?php echo base_url(); ?>assets/js/datatableconfig.js"></script>
 
+<?php foreach($js_files as $file): ?>
+        <script src="<?php echo $file; ?>"></script>
+    <?php endforeach; ?>
+
+    <!-- https://github.com/joshuachinemezu/ci-toastr -->
 <script type="text/javascript">
   <?php if ($this->session->flashdata('success')) { ?>
 

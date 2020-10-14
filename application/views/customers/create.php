@@ -1,10 +1,5 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-
-    <!-- Content Header (Page header) -->
+ <!-- Content Header (Page header) -->
     <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -103,6 +98,3 @@
       </form>
       <!-- /.row -->
     </section>
-    <!-- /.content -->
-  </section>
-</div>

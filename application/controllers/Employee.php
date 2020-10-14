@@ -1,18 +1,15 @@
 <?php
-
 defined('BASEPATH') or exit('No direct script access allowed');
-
 include(APPPATH . 'libraries/GroceryCrudEnterprise/autoload.php');
 use GroceryCrud\Core\GroceryCrud;
-
-class Employee extends Admin_Controller
+class Employee extends Admin_Base_Controller
 {
 	function __construct()
 	{
 		parent::__construct();
 		$this->data['page_title'] = 'Employee';
 		$this->load->model('employee_model');
-		//$this->load->library('grocery_CRUD');
+		$this->setTemplateFile('grocery_view');
 	}
 
 	private function _getDbData() {
@@ -44,9 +41,7 @@ class Employee extends Admin_Controller
 		$crud->displayAs('officeCode', 'Office City');
 		$crud->setSubject('Employee');
 
-		$crud->requiredFields('lastName');
-
-		//$crud->setFieldUpload('file_url', 'assets/uploads/files', 'assets/uploads/files');
+		$crud->setFieldUpload('file_url', 'assets/uploads/files', 'assets/uploads/files');
 
 		if (!in_array('viewEmployee', $this->permission)) {
 			$crud->unsetRead();
@@ -72,12 +67,13 @@ class Employee extends Admin_Controller
 	}
 
 	function _example_output($output = null) {
-		if (isset($output->isJSONResponse) && $output->isJSONResponse) {
-					header('Content-Type: application/json; charset=utf-8');
-					echo $output->output;
-					exit;
-		}
+	if ($output->isJSONResponse) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo $output->output;
+    exit;
+}
+
 	
-		$this->load->view('employee.php',$output);    
+		$this->load->view('employee.php',$output);
 	}
 }

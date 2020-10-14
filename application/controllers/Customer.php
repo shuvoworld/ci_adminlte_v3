@@ -2,7 +2,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Customer extends Admin_Controller
+class Customer extends Admin_Base_Controller
 {
 
 	function __construct()
@@ -18,11 +18,12 @@ class Customer extends Admin_Controller
 			$this->toastr->error('You do not have view permission');
 			redirect('admin/dashboard', 'refresh');
 		}
-		$this->render('customers/index', $this->data);
+		$this->load->view('customers/index', $this->data);
 	}
 
 	public function fetchCustomerData()
 	{
+		$this->setOutputMode(NORMAL);
 		$result = array('data' => array());
 
 		$data = $this->Customer_model->getCustomerData();
@@ -88,7 +89,7 @@ class Customer extends Admin_Controller
 			}
 		} else {
 			// false case
-			$this->render('customers/create', $this->data);
+			$this->load->view('customers/create', $this->data);
 		}
 	}
 
@@ -144,7 +145,7 @@ class Customer extends Admin_Controller
 				// false case
 				$customer_data = $this->Customer_model->getCustomerData($id);
 				$this->data['customer_data'] = $customer_data;
-				$this->render('customers/edit', $this->data);
+				$this->load->view('customers/edit', $this->data);
 			}
 		}
 	}

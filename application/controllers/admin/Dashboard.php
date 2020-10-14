@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dashboard extends Admin_Controller {
+class Dashboard extends Admin_Base_Controller {
 
 	function __construct() {
 		parent::__construct();
@@ -10,7 +10,9 @@ class Dashboard extends Admin_Controller {
 	}
 
 	public function index() {
-		$this->render('admin/dashboard_view', $this->data);
+		$this->data['title'] = 'Dashboard';
+		$this->data['breadcrumbs'] = 'Dashboard';
+		$this->load->view('admin/dashboard_view', $this->data);
 
 	}
 
