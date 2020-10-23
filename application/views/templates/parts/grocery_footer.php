@@ -1,10 +1,8 @@
-<footer class="main-footer">
-  <strong>Copyright &copy; 2020 <a href="#">Md. Enamul haque</a>.</strong>
+<strong>Copyright &copy; 2020 <a href="#">Md. Enamul haque</a>.</strong>
   All rights reserved.
-  <div class="float-right d-none d-sm-inline-block">
+<div class="float-right d-none d-sm-inline-block">
     <b>Contact - </b>Phone: +88-01675000148, Email: shuvoworld@gmail.com
-  </div>
-</footer>
+</div>
 
 
 <!-- Control Sidebar -->

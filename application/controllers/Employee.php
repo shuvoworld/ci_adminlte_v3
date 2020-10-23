@@ -40,7 +40,9 @@ class Employee extends Admin_Base_Controller
 		$crud->setRelation('officeCode', 'offices', 'city');
 		$crud->displayAs('officeCode', 'Office City');
 		$crud->setSubject('Employee');
-
+		$crud->unsetBootstrap();
+		$crud->unsetJquery();
+		$crud->unsetJqueryUi();
 		$crud->setFieldUpload('file_url', 'assets/uploads/files', 'assets/uploads/files');
 
 		if (!in_array('viewEmployee', $this->permission)) {

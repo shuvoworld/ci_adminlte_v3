@@ -23,7 +23,7 @@ return [
     'environment' => 'development',
 
     // The default skin that Grocery CRUD will use. Currently choose between 'bootstrap-v3' and 'bootstrap-v4'
-    'skin' => 'bootstrap-v3',
+    'skin' => 'bootstrap-v4',
 
     // This is basically in order to have some basic cache for the initial calls mainly for field types
     // of a database table

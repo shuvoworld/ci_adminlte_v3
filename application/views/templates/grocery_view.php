@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <head>
-    <?php require_once 'parts/grocery_header.php'; ?>
-    <script type="text/javascript">
-        var BASE_URL = "<?php echo base_url(); ?>";
-    </script>
+  <?php require_once 'parts/grocery_header.php'; ?>
+  <script type="text/javascript">
+    var BASE_URL = "<?php echo base_url(); ?>";
+  </script>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -27,28 +27,22 @@
     <!-- /.navbar -->
     <!-- Left side column. contains the logo and sidebar -->
     <aside class="main-sidebar">
-        <!-- sidebar: style can be found in sidebar.less -->
-        <section class="sidebar ">
-            <!-- Sidebar user panel -->
-            <?php require_once 'parts/sidebar.php'; ?>
-            <!-- /.sidebar -->
-        </section>
+      <!-- sidebar: style can be found in sidebar.less -->
+      <section class="sidebar ">
+        <!-- Sidebar user panel -->
+        <?php require_once 'parts/sidebar.php'; ?>
+        <!-- /.sidebar -->
+      </section>
     </aside>
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        <!-- Main content -->
-        <section class="content">
-            {{CONTENT}}
-        </section>
-        <!-- /.content -->
-    </div>
+    {{CONTENT}}
+
     <!-- /.content-wrapper -->
     <footer class="main-footer">
-        <?php require_once 'parts/grocery_footer.php'; ?>
+      <?php require_once 'parts/grocery_footer.php'; ?>
     </footer>
-</div>
-<!-- ./wrapper -->
+  </div>
+  <!-- ./wrapper -->
 </body>
-</html>
 
+</html>

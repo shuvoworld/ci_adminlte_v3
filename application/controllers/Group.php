@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Group extends Admin_Controller {
+class Group extends Admin_Base_Controller {
 
 	function __construct() {
 		parent::__construct();
@@ -13,7 +13,7 @@ class Group extends Admin_Controller {
 	public function index() {
 		$groups_data = $this->group_model->getAllGroups();
 		$this->data['groups_data'] = $groups_data;
-		$this->render('groups/index', $this->data);
+		$this->load->view('groups/index', $this->data);
 
 	}
 
@@ -40,7 +40,7 @@ class Group extends Admin_Controller {
 			}
 		} else {
 			// false case
-			$this->render('groups/create', $this->data);
+			$this->load->view('groups/create', $this->data);
 		}
 	}
 
@@ -82,7 +82,7 @@ class Group extends Admin_Controller {
 				$group_data = $this->group_model->getGroupData($id);
 				//print_r($group_data);die();
 				$this->data['group_data'] = $group_data;
-				$this->render('groups/edit', $this->data);
+				$this->load->view('groups/edit', $this->data);
 			}
 		}
 	}

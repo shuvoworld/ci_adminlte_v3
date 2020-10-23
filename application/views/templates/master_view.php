@@ -34,17 +34,10 @@
             <!-- /.sidebar -->
         </section>
     </aside>
-
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+    
         <!-- Main content -->
-        <section class="content">
             {{CONTENT}}
-        </section>
         <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
-    <!-- /.content-wrapper -->
 <footer class="main-footer">
         <?php require_once 'parts/footer.php'; ?>
 </footer>
