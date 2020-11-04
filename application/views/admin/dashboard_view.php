@@ -1,3 +1,4 @@
+<div class="content-wrapper">
 <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
@@ -72,4 +73,5 @@
           </div>
         </div>
       </div>
+</div>
 </div>
