@@ -65,6 +65,24 @@
                 <p>Employees</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="<?php echo base_url(); ?>location/divisions_management" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Divisions</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="<?php echo base_url(); ?>location/districts_management" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Districts</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="<?php echo base_url(); ?>location/upazilas_management" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Upazilas</p>
+              </a>
+            </li>
           </ul>
         </li>
 

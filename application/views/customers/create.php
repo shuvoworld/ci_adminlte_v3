@@ -1,4 +1,3 @@
-<?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <section class="content-header">
@@ -26,14 +25,14 @@
             <h3 class="card-title">Create New Customer</h3>
           </div>
           <!-- /.card-header -->
-          <form role="form" action="<?php base_url('Customer/create') ?>" method="post">
+          <form role="form" action="<?php base_url('Customer/create')?>" method="post">
             <div class="card-body">
-              <?php if (validation_errors()) { ?>
+              <?php if (validation_errors()) {?>
                 <div class="alert alert-danger">
                   <a class="close" data-dismiss="alert">x</a>
                   <ul><?php echo (validation_errors('<li>', '</li>')); ?></ul>
                 </div>
-              <?php } ?>
+              <?php }?>
               <div class="row">
                 <div class="form-group col-3">
                   <label for="groupName">Customer Name</label>
@@ -90,6 +89,9 @@
       </div>
       <!-- /.col -->
     </div>
+
+
+
     <div class="row">
       <div class="col-12">
         <a href="<?php echo base_url('customer') ?>" class="btn btn-secondary">Cancel</a>
@@ -97,6 +99,11 @@
       </div>
     </div>
     </form>
-    <!-- /.row -->
-  </section>
-  <div>
+        </section>
+        <!-- /.content -->
+    </section>
+</div>
+
+
+
+
