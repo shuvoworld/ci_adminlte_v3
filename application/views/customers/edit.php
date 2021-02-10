@@ -14,7 +14,7 @@
 					<div class="col-sm-6">
 						<ol class="breadcrumb float-sm-right">
 							<li class="breadcrumb-item"><a href="#">Home</a></li>
-							<li class="breadcrumb-item active">Create Customer</li>
+							<li class="breadcrumb-item active">Edit Customer</li>
 						</ol>
 					</div>
 				</div>
@@ -101,6 +101,39 @@
 										<input type="text" id="postalCode" name="postalCode" value="<?php echo $customer_data['postalCode'] ?>" class="form-control">
 									</div>
 								</div>
+
+								<div class="row">
+									<div class="form-group col-3">
+										<label for="division">Division</label>
+										<select name="division_id" id="division_id" class="form-control" style="width: 100%;">
+											<?php foreach ($division as $row) { ?>
+												<option <?php if ($row->id == $customer_data['division_id']) { echo "selected='selected'"; } ?> value="<?php echo $row->id; ?>">
+													<?php echo $row->name_BN ?>
+												</option>';
+
+											<?php } ?>
+										</select>
+									</div>
+									<div class="form-group col-3">
+										<label for="district_id">District</label>
+										<select name="district_id" id="district_id" class="form-control" style="width: 100%;">
+											<option <?php if ($row->id == $customer_data['district_id']) {
+													echo "selected='selected'";
+												} ?> value="<?php echo $row->id; ?>">
+												<?php echo $row->name_BN ?>
+											</option>';
+										</select>
+									</div>
+									<div class="form-group col-3">
+										<label for="upazila_id">Upazila</label>
+										<select name="upazila_id" id="upazila_id" class="form-control" style="width: 100%;">
+											<option <?php if ($row->id == $customer_data['upazila_id']) {
+													echo "selected='selected'";;
+												} ?> value="<?php echo $row->id; ?>"><?php echo $row->name_BN ?> </option>';
+										</select>
+									</div>
+								</div>
+
 							</div>
 							<!-- /.card-body -->
 
@@ -114,33 +147,40 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="card">
-						<h1>Degree
-							<small>List</small>
-							<div class="float-right"><a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#Modal_Add"><span class="fa fa-plus"></span> Add New</a>
+						<div class="card-header">
+							<div class="d-inline-block">
+								<h3 class="card-title">Degree</h3>
 							</div>
-						</h1>
-						<table class="table table-striped" id="mydata">
-							<thead>
-							<tr>
-								<th>Customer</th>
-								<th>Degree</th>
-								<th style="text-align: right;">Actions</th>
-							</tr>
-							</thead>
-							<tbody id="show_data">
+							<div class="d-inline-block float-right">
+								<a href="javascript:void(0);" class="btn btn-primary" data-toggle="modal" data-target="#Modal_Add"><span class="fa fa-plus"></span>Add New</a>
+							</div>
+						</div>
+						<div class="card-body">
+							<table class="table table-striped" id="mydata">
+								<thead>
+								<tr>
+									<th>Customer</th>
+									<th>Degree</th>
+									<th style="text-align: right;">Actions</th>
+								</tr>
+								</thead>
+								<tbody id="show_data">
 
-							</tbody>
-						</table>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
+
+
 			<div class="row">
 				<div class="col-12">
 					<a href="<?php echo base_url('customer') ?>" class="btn btn-secondary">Cancel</a>
 					<input type="submit" value="Save and Close" class="btn btn-success float-right">
 				</div>
 			</div>
-			</form>
+</form>
 			<!-- /.row -->
 		</section>
 		<!-- /.content -->
@@ -332,5 +372,39 @@
             return false;
         });
 
+        $('#division_id').change(function () {
+            var division_id = $('#division_id').val();
+            if (division_id != '') {
+                $.ajax({
+                    url: "<?php echo base_url(); ?>Location/fetch_district",
+                    method: "POST",
+                    data: {division_id: division_id},
+                    success: function (data) {
+                        $('#district_id').html(data);
+                        $('#upazila_id').html('<option value="">Select Upazila</option>');
+                    }
+                });
+            } else {
+                $('#district_id').html('<option value="">Select District</option>');
+                $('#upazila_id').html('<option value="">Select Upazila</option>');
+            }
+        });
+
+        $('#district_id').change(function () {
+            var district_id = $('#district_id').val();
+            if (district_id != '') {
+                $.ajax({
+                    url: "<?php echo base_url(); ?>Location/fetch_upazila",
+                    method: "POST",
+                    data: {district_id: district_id},
+                    success: function (data) {
+                        $('#upazila_id').html(data);
+                    }
+                });
+            } else {
+                $('#upazila_id').html('<option value="">Select Upazila</option>');
+            }
+        });
     });
+
 </script>

@@ -10,6 +10,7 @@ class Customer extends Admin_Base_Controller
 		parent::__construct();
 		$this->data['page_title'] = 'Customer';
 		$this->load->model('Customer_model');
+		$this->load->model('Location_model');
 	}
 
 	public function index()
@@ -32,7 +33,7 @@ class Customer extends Admin_Base_Controller
 			// button
 			$buttons = '';
 			if (in_array('updateCustomer', $this->permission)) {
-				$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-primary btn-sm">Edit</a>';
+				$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-primary btn-sm">Edit</a>&nbsp;';
 			}
 
 			if (in_array('deleteCustomer', $this->permission)) {
@@ -60,6 +61,7 @@ class Customer extends Admin_Base_Controller
 			$this->toastr->error('You do not have create permission');
 			redirect('admin/dashboard', 'refresh');
 		}
+		$this->data['division'] = $this->Location_model->fetch_division();
 
 		$this->form_validation->set_rules('customerName', 'Customer name', 'required');
 		$this->form_validation->set_rules('phone', 'Phone', 'required');
@@ -76,6 +78,9 @@ class Customer extends Admin_Base_Controller
 				'city' => $this->input->post('city'),
 				'state' => $this->input->post('state'),
 				'postalCode' => $this->input->post('postalCode'),
+				'division_id' => $this->input->post('division_id'),
+				'district_id' => $this->input->post('district_id'),
+				'upazila_id' => $this->input->post('upazila_id'),
 			);
 
 			$create = $this->Customer_model->create($data);
@@ -106,6 +111,8 @@ class Customer extends Admin_Base_Controller
 			redirect('admin/dashboard', 'refresh');
 		}
 
+		$this->data['division'] = $this->Location_model->fetch_division();
+
 		if ($id) {
 
 			$this->form_validation->set_rules('customerName', 'name', 'required');
@@ -123,6 +130,9 @@ class Customer extends Admin_Base_Controller
 					'city' => $this->input->post('city'),
 					'state' => $this->input->post('state'),
 					'postalCode' => $this->input->post('postalCode'),
+					'division_id' => $this->input->post('division_id'),
+					'district_id' => $this->input->post('district_id'),
+					'upazila_id' => $this->input->post('upazila_id'),
 				);
 
 				if ($_FILES['customer_image']['size'] > 0) {
@@ -154,7 +164,7 @@ class Customer extends Admin_Base_Controller
 	{
 		// assets/images/product_image
 		$config['upload_path'] = 'assets/uploads';
-		$config['file_name'] =  uniqid();
+		$config['file_name'] = uniqid();
 		$config['allowed_types'] = 'gif|jpg|png';
 		$config['max_size'] = '1000';
 
@@ -192,4 +202,5 @@ class Customer extends Admin_Base_Controller
 			echo json_encode($response_array);
 		}
 	}
+
 }

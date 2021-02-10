@@ -1,10 +1,10 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 
-  <strong>Copyright &copy; 2020 <a href="#">Md. Enamul haque</a>.</strong>
-  All rights reserved.
-  <div class="float-right d-none d-sm-inline-block">
-    <b>Contact - </b>Phone: +88-01675000148, Email: shuvoworld@gmail.com
-  </div>
+<strong>Copyright &copy; 2020 <a href="#">Md. Enamul haque</a>.</strong>
+All rights reserved.
+<div class="float-right d-none d-sm-inline-block">
+	<b>Contact - </b>Phone: +88-01675000148, Email: shuvoworld@gmail.com
+</div>
 
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
@@ -60,28 +60,34 @@
 <!-- 
 <script src="<?php echo base_url(); ?>assets/js/datatableconfig.js"></script> -->
 
+<!-- Select2 -->
+<script src="<?php echo base_url(); ?>assets/adminlte/plugins/select2/js/select2.full.js"></script>
 
 
 <!-- https://github.com/joshuachinemezu/ci-toastr -->
 <script type="text/javascript">
-  <?php if ($this->session->flashdata('success')) { ?>
+
+
+	<?php if ($this->session->flashdata('success')) { ?>
 
     toastr.success("<?php echo $this->session->flashdata('success'); ?>");
 
-  <?php } else if ($this->session->flashdata('error')) {  ?>
+	<?php } else if ($this->session->flashdata('error')) {  ?>
 
     toastr.error("<?php echo $this->session->flashdata('error'); ?>");
 
-  <?php } else if ($this->session->flashdata('warning')) {  ?>
+	<?php } else if ($this->session->flashdata('warning')) {  ?>
 
     toastr.warning("<?php echo $this->session->flashdata('warning'); ?>");
 
-  <?php } else if ($this->session->flashdata('info')) {  ?>
+	<?php } else if ($this->session->flashdata('info')) {  ?>
 
     toastr.info("<?php echo $this->session->flashdata('info'); ?>");
 
-  <?php } ?>
+	<?php } ?>
+
 </script>
+
 
 
 </body>
