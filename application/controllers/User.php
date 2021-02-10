@@ -4,13 +4,13 @@ include(APPPATH . 'libraries/GroceryCrudEnterprise/autoload.php');
 
 use GroceryCrud\Core\GroceryCrud;
 
-class Employee extends Admin_Base_Controller
+class User extends Admin_Base_Controller
 {
 	function __construct()
 	{
 		parent::__construct();
-		$this->data['page_title'] = 'Employee';
-		$this->load->model('employee_model');
+		$this->data['page_title'] = 'User';
+		$this->load->model('user_model');
 		$this->setTemplateFile('grocery_view');
 	}
 
@@ -38,32 +38,32 @@ class Employee extends Admin_Base_Controller
 		return $groceryCrud;
 	}
 
-	public function employees_management()
+	public function user_management()
 	{
 		$crud = $this->_getGroceryCrudEnterprise();
-		$crud->setTable('employees');
-		$crud->setRelation('officeCode', 'offices', 'city');
-		$crud->displayAs('officeCode', 'Office City');
-		$crud->setSubject('Employee');
+		$crud->setTable('users');
+		$crud->setRelationNtoN('Group', 'users_groups', 'groups', 'user_id', 'group_id', 'name');
+		$crud->fields(['username','email', 'password', 'first_name','last_name', 'Group']);
+		$crud->columns(['username','email', 'first_name','last_name']);
+		$crud->setSubject('User');
 		$crud->unsetBootstrap();
 		$crud->unsetJquery();
 		$crud->unsetJqueryUi();
-		$crud->setFieldUpload('file_url', 'assets/uploads/files', 'assets/uploads/files');
 
-		if (!in_array('viewEmployee', $this->permission)) {
+		if (!in_array('viewUser', $this->permission)) {
 			$crud->unsetRead();
 			$this->toastr->error('You do not have view permission');
 			redirect('admin/dashboard', 'refresh');
 		}
-		if (!in_array('updateEmployee', $this->permission)) {
+		if (!in_array('updateUser', $this->permission)) {
 			$crud->unsetEdit();
 			$this->toastr->error('You do not have edit permission');
 		}
-		if (!in_array('deleteEmployee', $this->permission)) {
+		if (!in_array('deleteUser', $this->permission)) {
 			$crud->unsetDelete();
 			$this->toastr->error('You do not have delete permission');
 		}
-		if (!in_array('createEmployee', $this->permission)) {
+		if (!in_array('createUser', $this->permission)) {
 			$crud->unsetAdd();
 			$crud->unsetClone();
 			$this->toastr->error('You do not have create permission');
@@ -81,6 +81,6 @@ class Employee extends Admin_Base_Controller
 			exit;
 		}
 
-		$this->load->view('employee.php', $output);
+		$this->load->view('user.php', $output);
 	}
 }
