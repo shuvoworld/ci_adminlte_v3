@@ -31,7 +31,7 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="<?php echo base_url(); ?>user/user_management" class="nav-link">
+              <a href="<?php echo base_url(); ?>User/" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Users</p>
               </a>

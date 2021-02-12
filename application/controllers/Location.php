@@ -49,16 +49,17 @@ class Location extends Admin_Base_Controller
 		$crud->unsetJqueryUi();
 
 		$output = $crud->render();
-    	$this->_division_output($output);
+		$this->_division_output($output);
 	}
 
-		function _division_output($output = null)
+	function _division_output($output = null)
 	{
-		if ($output->isJSONResponse) {
+		if (isset($output->isJSONResponse) && $output->isJSONResponse) {
 			header('Content-Type: application/json; charset=utf-8');
 			echo $output->output;
 			exit;
 		}
+
 
 		$this->load->view('division.php', $output);
 	}
@@ -73,10 +74,10 @@ class Location extends Admin_Base_Controller
 		$crud->unsetJqueryUi();
 
 		$output = $crud->render();
-    	$this->_division_output($output);
+		$this->_district_output($output);
 	}
 
-		function _district_output($output = null)
+	function _district_output($output = null)
 	{
 		if ($output->isJSONResponse) {
 			header('Content-Type: application/json; charset=utf-8');
@@ -97,10 +98,10 @@ class Location extends Admin_Base_Controller
 		$crud->unsetJqueryUi();
 
 		$output = $crud->render();
-    	$this->_upazila_output($output);
+		$this->_upazila_output($output);
 	}
 
-		function _upazila_output($output = null)
+	function _upazila_output($output = null)
 	{
 		if ($output->isJSONResponse) {
 			header('Content-Type: application/json; charset=utf-8');

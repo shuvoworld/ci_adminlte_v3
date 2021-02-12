@@ -10,7 +10,7 @@ return [
     'assets_folder' => base_url() . 'assets/grocery-crud/',
 
     // There are only three choices: "uk-date" (dd/mm/yyyy), "us-date" (mm/dd/yyyy) or "sql-date" (yyyy-mm-dd)
-    'date_format' => 'uk-date',
+    'date_format' => 'sql-date',
 
     // The default per page when a user firstly see a list page
     'default_per_page'	=> 10,

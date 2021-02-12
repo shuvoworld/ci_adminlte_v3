@@ -19,36 +19,34 @@
 				<div class="card">
 					<div class="card-header">
 						<div class="d-inline-block">
-							<h3 class="card-title"><i class="fa fa-list"></i>&nbsp; Manage Customers (Server Side data Table Implementation)</h3>
+							<h3 class="card-title"><i class="fa fa-list"></i>&nbsp; Manage Users (Ion Auth Implementation)</h3>
 						</div>
 						<div class="d-inline-block float-right">
 							<?php if (in_array('createCustomer', $this->permission)) { ?>
-							<div class="d-inline-block float-right"><a href="<?= base_url('Customer/create'); ?>" class="btn btn-success"><i class="fa fa-plus"></i> Add Customer</a>
+							<div class="d-inline-block float-right"><a href="<?= base_url('User/create'); ?>" class="btn btn-success"><i class="fa fa-plus"></i> Add User</a>
 								<?php } ?>
 							</div>
 						</div>
 					</div>
 					<div class="card-body">
-						<table id="customerTable" class="table table-bordered table-hover">
+						<table id="userTable" class="table table-bordered table-hover">
 							<thead>
-							<th>CustomerNumber</th>
-							<th>CustomerName</th>
-							<th>contactLastName</th>
-							<th>contactFirstName</th>
-							<th>Phone</th>
-							<th>Country</th>
-							<th>Action</th>
+								<th>ID</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>First Name</th>
+								<th>Last Lame</th>
+								<th>Action</th>
 							</thead>
 							<tbody>
 							</tbody>
 							<tfoot>
 							<tr>
-								<th>CustomerNumber</th>
-								<th>CustomerName</th>
-								<th>contactLastName</th>
-								<th>contactFirstName</th>
-								<th>Phone</th>
-								<th>Country</th>
+								<th>ID</th>
+								<th>Username</th>
+								<th>Email</th>
+								<th>First Name</th>
+								<th>Last Lame</th>
 								<th>Action</th>
 							</tr>
 							</tfoot>
@@ -67,7 +65,7 @@
     var base_url = "<?php echo base_url(); ?>";
 
     $(document).ready(function () {
-        manageTable = $('#customerTable').DataTable({
+        manageTable = $('#userTable').DataTable({
             dom: 'Bfrtip',
             buttons: [{
                 extend: 'copy',
@@ -80,7 +78,7 @@
                     className: 'btn btn-warning float-sm-left'
                 }
             ],
-            'ajax': base_url + 'Customer/fetchCustomerData',
+            'ajax': base_url + 'User/fetchUserData',
             'order': []
         });
 
@@ -90,15 +88,15 @@
         manageTable.ajax.reload(null, false); //reload datatable ajax
     }
 
-    $(document).on('click', '.delete', function (e) {
-        var customerId = $(this).attr('id');
-        SwalDelete(customerId);
+$(document).on('click', '.delete', function (e) {
+        var userId = $(this).attr('id');
+        SwalDelete(userId);
         e.preventDefault();
     });
 
-    function SwalDelete(customerId) {
+    function SwalDelete(userId) {
         swal({
-            title: 'Are you sure to delete customerID: ' + customerId + '?',
+            title: 'Are you sure to delete userID: ' + userId + '?',
             text: "You won't be able to revert this!",
             type: 'warning',
             showCancelButton: true,
@@ -109,13 +107,13 @@
 
         }, function () {
             $.ajax({
-                url: base_url + 'Customer/delete',
+                url: base_url + 'User/delete',
                 type: 'POST',
-                data: 'id=' + customerId,
+                data: 'id=' + userId,
                 dataType: 'text'
             })
                 .done(function (response) {
-                    swal('Deleted!', response.message, response.status);
+                    swal('User Deleted Successfully!', response.message, response.status);
                     reload_table();
                 })
                 .fail(function () {
@@ -123,5 +121,4 @@
                 });
         });
     }
-
 </script>

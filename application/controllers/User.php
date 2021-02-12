@@ -1,86 +1,156 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
-include(APPPATH . 'libraries/GroceryCrudEnterprise/autoload.php');
 
-use GroceryCrud\Core\GroceryCrud;
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class User extends Admin_Base_Controller
 {
+
 	function __construct()
 	{
 		parent::__construct();
 		$this->data['page_title'] = 'User';
-		$this->load->model('user_model');
-		$this->setTemplateFile('grocery_view');
+		$this->load->model('User_model');
+		$this->load->model('Group_model');
 	}
 
-	private function _getDbData()
+	public function index()
 	{
-		$db = [];
-		include(APPPATH . 'config/database.php');
-		return [
-			'adapter' => [
-				'driver' => 'Pdo_Mysql',
-				'host' => $db['default']['hostname'],
-				'database' => $db['default']['database'],
-				'username' => $db['default']['username'],
-				'password' => $db['default']['password'],
-				'charset' => 'utf8'
-			]
-		];
-	}
-
-	private function _getGroceryCrudEnterprise($bootstrap = true, $jquery = true)
-	{
-		$db = $this->_getDbData();
-		$config = include(APPPATH . 'config/gcrud-enterprise.php');
-		$groceryCrud = new GroceryCrud($config, $db);
-		return $groceryCrud;
-	}
-
-	public function user_management()
-	{
-		$crud = $this->_getGroceryCrudEnterprise();
-		$crud->setTable('users');
-		$crud->setRelationNtoN('Group', 'users_groups', 'groups', 'user_id', 'group_id', 'name');
-		$crud->fields(['username','email', 'password', 'first_name','last_name', 'Group']);
-		$crud->columns(['username','email', 'first_name','last_name']);
-		$crud->setSubject('User');
-		$crud->unsetBootstrap();
-		$crud->unsetJquery();
-		$crud->unsetJqueryUi();
-
 		if (!in_array('viewUser', $this->permission)) {
-			$crud->unsetRead();
 			$this->toastr->error('You do not have view permission');
 			redirect('admin/dashboard', 'refresh');
 		}
-		if (!in_array('updateUser', $this->permission)) {
-			$crud->unsetEdit();
-			$this->toastr->error('You do not have edit permission');
-		}
-		if (!in_array('deleteUser', $this->permission)) {
-			$crud->unsetDelete();
-			$this->toastr->error('You do not have delete permission');
-		}
-		if (!in_array('createUser', $this->permission)) {
-			$crud->unsetAdd();
-			$crud->unsetClone();
-			$this->toastr->error('You do not have create permission');
-		}
-
-		$output = $crud->render();
-		$this->_example_output($output);
+		$this->load->view('users/index', $this->data);
 	}
 
-	function _example_output($output = null)
+	public function fetchUserData()
 	{
-		if ($output->isJSONResponse) {
-			header('Content-Type: application/json; charset=utf-8');
-			echo $output->output;
-			exit;
+		$this->setOutputMode(NORMAL);
+		$result = array('data' => array());
+
+		$data = $this->User_model->getUserData();
+
+		foreach ($data as $key => $value) {
+			// button
+			$buttons = '';
+			if (in_array('updateUser', $this->permission)) {
+				$buttons .= '<a href="' . base_url('User/edit/' . $value['id']) . '" class="btn btn-info btn-sm">Edit</a>&nbsp;';
+			}
+
+			if (in_array('deleteUser', $this->permission)) {
+				$buttons .= "<a data-toggle='tooltip' class='btn btn-danger btn-sm delete'  id='" . $value['id'] . "' title='Delete'>Delete</a>";
+			}
+
+			$result['data'][$key] = array(
+				$value['id'],
+				$value['username'],
+				$value['email'],
+				$value['first_name'],
+				$value['last_name'],
+				$buttons,
+			);
+		} // /foreach
+
+		echo json_encode($result);
+	}
+
+	public function create()
+	{
+
+		if (!in_array('createUser', $this->permission)) {
+			$this->toastr->error('You do not have create permission');
+			redirect('admin/dashboard', 'refresh');
+		}
+		$this->data['group'] = $this->Group_model->getAllGroups();
+		$this->form_validation->set_rules('username', 'User Name', 'required');
+		$this->form_validation->set_rules('email', 'Email', 'required');
+		$this->form_validation->set_rules('group_id', 'Group', 'required');
+
+		if ($this->form_validation->run() == TRUE) {
+
+			$username = $this->input->post('username');
+			$email = $this->input->post('email');
+			$password = $this->input->post('password');
+			$additional_data = array(
+				'first_name' => $this->input->post('first_name'),
+				'last_name' => $this->input->post('last_name')
+			);
+			$group = array($this->input->post('group_id'));
+
+			$create = $this->ion_auth->register($username, $password, $email, $additional_data, $group);
+
+			if ($create == true) {
+				$this->toastr->success('Successfully created!');
+				redirect('User/', 'refresh');
+			} else {
+				$this->toastr->error('Create failed!');
+				redirect('User/create', 'refresh');
+			}
+		} else {
+			// false case
+			$this->load->view('users/create', $this->data);
+		}
+	}
+
+	/*
+		        * If the validation is not valid, then it redirects to the edit group page
+		        * If the validation is successfully then it updates the data into the database
+		        * and it stores the operation message into the session flashdata and display on the manage group page
+	*/
+	public function edit($id = null)
+	{
+
+		if (!in_array('updateUser', $this->permission)) {
+			$this->toastr->error('You do not have update permission');
+			redirect('admin/dashboard', 'refresh');
 		}
 
-		$this->load->view('user.php', $output);
+		$this->data['group'] = $this->Group_model->getAllGroups();
+		$this->form_validation->set_rules('username', 'User Name', 'required');
+		$this->form_validation->set_rules('email', 'Email', 'required');
+		$this->form_validation->set_rules('group_id', 'Group', 'required');
+
+		if ($id) {
+
+			if ($this->form_validation->run() == TRUE) {
+				$data = array(
+					'first_name' => $this->input->post('first_name'),
+					'last_name' => $this->input->post('last_name'),
+					'username' => $this->input->post('username'),
+					'password' => $this->input->post('password')
+				);
+
+				$update = $this->ion_auth->update($id, $data);
+
+				$group = $this->input->post('group_id');
+				$this->ion_auth->remove_from_group(NULL, $id);
+				$this->ion_auth->add_to_group($group, $id);
+
+				if ($update == true) {
+					$this->session->set_flashdata('success', 'Successfully updated');
+					redirect('User/', 'refresh');
+				} else {
+					$this->session->set_flashdata('errors', 'Error occurred!!');
+					redirect('User/edit/' . $id, 'refresh');
+				}
+			} else {
+				//false case
+				$user_data = $this->User_model->getUserData($id);
+				$this->data['user_data'] = $user_data;
+				$this->load->view('users/edit', $this->data);
+
+			}
+		}
 	}
+
+
+	public function delete()
+	{
+		header("Content-type: application/json");
+		$id = $this->input->post('id');
+		$result = $this->ion_auth->delete_user($id);
+		if ($result) {
+			echo 'Deleted successfully';
+		}
+	}
+
 }

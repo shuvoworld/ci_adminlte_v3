@@ -1,10 +1,7 @@
 <?php
-
 defined('BASEPATH') or exit('No direct script access allowed');
-
 class Customer extends Admin_Base_Controller
 {
-
 	function __construct()
 	{
 		parent::__construct();
@@ -33,11 +30,11 @@ class Customer extends Admin_Base_Controller
 			// button
 			$buttons = '';
 			if (in_array('updateCustomer', $this->permission)) {
-				$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-primary btn-sm">Edit</a>&nbsp;';
+				$buttons .= '<a href="' . base_url('Customer/edit/' . $value['customerNumber']) . '" class="btn btn-info btn-sm">Edit</a>&nbsp;';
 			}
 
 			if (in_array('deleteCustomer', $this->permission)) {
-				$buttons .= "<a data-toggle='tooltip' class='btn btn-danger btn-sm  delete'  id='" . $value['customerNumber'] . "' title='Delete'> Delete</a>";
+				$buttons .= "<a data-toggle='tooltip' class='btn btn-danger btn-sm delete'  id='" . $value['customerNumber'] . "' title='Delete'> Delete</a>";
 			}
 
 			$result['data'][$key] = array(
@@ -187,20 +184,23 @@ class Customer extends Admin_Base_Controller
 
 	public function delete()
 	{
-		header('Content-Type: application/json');
+		header('Content-type: application/json');
 		$id = $this->input->post('id');
-
+		$response = array();
 		$result = $this->Customer_model->delete($id);
 
 		if ($result) {
-			$response_array['type'] = 'success';
-			$response_array['message'] = '<div class="alert alert-success alert-dismissable"><i class="icon fa fa-check"></i> Successfully Deleted. </div>';
-			echo json_encode($response_array);
+			echo json_encode(array(
+			'status' => 'success',
+			'message' => 'Customer Deleted Successfully'
+		));
 		} else {
-			$response_array['type'] = 'danger';
-			$response_array['message'] = '<div class="alert alert-danger alert-dismissable"><i class="icon fa fa-times"></i> Sorry! Failed.</div>';
-			echo json_encode($response_array);
+			echo json_encode(array(
+			'status' => "error",
+			'message' => 'Customer Deletion Faied!'
+		));
 		}
+
 	}
 
 }

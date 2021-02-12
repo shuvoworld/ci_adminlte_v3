@@ -105,7 +105,7 @@
 								<div class="row">
 									<div class="form-group col-3">
 										<label for="division">Division</label>
-										<select name="division_id" id="division_id" class="form-control" style="width: 100%;">
+										<select name="division_id" id="division_id" class="form-control custom-select" style="width: 100%;">
 											<?php foreach ($division as $row) { ?>
 												<option <?php if ($row->id == $customer_data['division_id']) { echo "selected='selected'"; } ?> value="<?php echo $row->id; ?>">
 													<?php echo $row->name_BN ?>
@@ -116,7 +116,7 @@
 									</div>
 									<div class="form-group col-3">
 										<label for="district_id">District</label>
-										<select name="district_id" id="district_id" class="form-control" style="width: 100%;">
+										<select name="district_id" id="district_id" class="form-control custom-select" style="width: 100%;">
 											<option <?php if ($row->id == $customer_data['district_id']) {
 													echo "selected='selected'";
 												} ?> value="<?php echo $row->id; ?>">
@@ -126,7 +126,7 @@
 									</div>
 									<div class="form-group col-3">
 										<label for="upazila_id">Upazila</label>
-										<select name="upazila_id" id="upazila_id" class="form-control" style="width: 100%;">
+										<select name="upazila_id" id="upazila_id" class="form-control custom-select" style="width: 100%;">
 											<option <?php if ($row->id == $customer_data['upazila_id']) {
 													echo "selected='selected'";;
 												} ?> value="<?php echo $row->id; ?>"><?php echo $row->name_BN ?> </option>';
