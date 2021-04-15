@@ -263,10 +263,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var btnCust = '<button type="button" class="btn btn-info" title="Add picture tags" ' +
-            'onclick="alert(\'Call your custom code here.\')">' +
-            'Custom Tag' +
-            '</button>';
+        var btnCust = '';
         $("#customer_image").fileinput({
             overwriteInitial: true,
             maxFileSize: 1500,
@@ -274,7 +271,7 @@
             showCaption: false,
             browseLabel: 'Browse',
             removeLabel: 'Remove',
-            browseIcon: 'Icon',
+            browseIcon: 'Image',
             removeIcon: 'Remove',
             removeTitle: 'Cancel or reset changes',
             elErrorContainer: '#kv-avatar-errors-1',
@@ -283,7 +280,7 @@
             layoutTemplates: {
                 main2: '{preview} ' + btnCust + ' {remove} {browse}'
             },
-            allowedFileExtensions: ["jpg", "png", "gif"]
+            allowedFileExtensions: ["jpg", "png"]
         });
 
 

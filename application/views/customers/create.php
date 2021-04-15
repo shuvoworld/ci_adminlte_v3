@@ -25,7 +25,7 @@
 						<h3 class="card-title">Create New Customer</h3>
 					</div>
 					<!-- /.card-header -->
-					<form role="form" action="<?php base_url('Customer/create') ?>" method="post">
+					<form role="form" action="<?php base_url('Customer/create') ?>" method="post" enctype="multipart/form-data">
 						<div class="card-body">
 							<?php if (validation_errors()) { ?>
 								<div class="alert alert-danger">
@@ -33,6 +33,12 @@
 									<ul><?php echo(validation_errors('<li>', '</li>')); ?></ul>
 								</div>
 							<?php } ?>
+							<div class="row">
+								<div class="form-group col-3">
+									<label for="customer_image">Upload Profile Photo</label>
+									<input type="file" class="form-control-file" name="customer_image" size="20" />
+								</div>
+							</div>
 							<div class="row">
 								<div class="form-group col-3">
 									<label for="groupName">Customer Name</label>

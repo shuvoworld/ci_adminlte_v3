@@ -63,7 +63,10 @@ class Customer extends Admin_Base_Controller
 		$this->form_validation->set_rules('customerName', 'Customer name', 'required');
 		$this->form_validation->set_rules('phone', 'Phone', 'required');
 		if ($this->form_validation->run() == TRUE) {
-
+		
+			if ($_FILES['customer_image']['size'] > 0) {
+				$upload_image = $this->upload_image();
+			}
 			$data = array(
 				'customerName' => $this->input->post('customerName'),
 				'contactLastName' => $this->input->post('contactLastName'),
@@ -78,8 +81,9 @@ class Customer extends Admin_Base_Controller
 				'division_id' => $this->input->post('division_id'),
 				'district_id' => $this->input->post('district_id'),
 				'upazila_id' => $this->input->post('upazila_id'),
+				'image'		 => $upload_image
 			);
-
+		
 			$create = $this->Customer_model->create($data);
 
 			if ($create == true) {
@@ -162,7 +166,7 @@ class Customer extends Admin_Base_Controller
 		// assets/images/product_image
 		$config['upload_path'] = 'assets/uploads';
 		$config['file_name'] = uniqid();
-		$config['allowed_types'] = 'gif|jpg|png';
+		$config['allowed_types'] = 'jpg|png';
 		$config['max_size'] = '1000';
 
 		// $config['max_width']  = '1024';s
