@@ -200,12 +200,6 @@
 				</div>
 				<div class="modal-body">
 					<div class="form-group row">
-						<label class="col-md-2 col-form-label">Customer ID</label>
-						<div class="col-md-10">
-							<input type="text" name="customer_id" id="customer_id" class="form-control" placeholder="Customer">
-						</div>
-					</div>
-					<div class="form-group row">
 						<label class="col-md-2 col-form-label">Degree</label>
 						<div class="col-md-10">
 							<input type="text" name="degree" id="degree" class="form-control" placeholder="Degree">
@@ -235,13 +229,6 @@
 					</button>
 				</div>
 				<div class="modal-body">
-					<div class="form-group row">
-						<label class="col-md-2 col-form-label">Customer ID</label>
-						<div class="col-md-10">
-							<input type="text" name="customer_id" id="customer_id" class="form-control" placeholder="Customer ID" readonly>
-						</div>
-					</div>
-
 					<div class="form-group row">
 						<label class="col-md-2 col-form-label">Degree</label>
 						<div class="col-md-10">
@@ -284,8 +271,6 @@
         });
 
 
-        var customer_id = <?php echo $this->uri->segment('3') ?>;
-
         show_degree(); //call function show all product
 
         $('#mydata').dataTable();
@@ -296,7 +281,7 @@
                 type: 'POST',
                 url: '<?php echo site_url('customerdegree/get_data')?>',
                 async: true,
-                data: {customer_id: customer_id},
+                data: {customer_id: <?php echo $customer_id ?>},
                 dataType: 'json',
                 success: function (data) {
                     var html = '';
@@ -319,7 +304,7 @@
 
         //Save product
         $('#btn_save').on('click', function () {
-            var customer_id = $('#customer_id').val();
+            var customer_id = <?php echo $customer_id ?>;
             var degree = $('#degree').val();
             $.ajax({
                 type: "POST",

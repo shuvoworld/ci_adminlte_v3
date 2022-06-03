@@ -113,6 +113,7 @@ class Customer extends Admin_Base_Controller
 		}
 
 		$this->data['division'] = $this->Location_model->fetch_division();
+		$this->data['customer_id'] = $id;
 
 		if ($id) {
 
