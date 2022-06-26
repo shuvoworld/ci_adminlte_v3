@@ -46,7 +46,7 @@ class EditFormState extends StateAbstract {
         foreach ($callbackEditFields as $fieldName => $callback) {
 
             $outputData[$fieldName] =
-                isset($outputData[$fieldName])
+                property_exists($outputData, $fieldName)
                     ? $callback($outputData[$fieldName], $this->getStateParameters()->primaryKeyValue, $outputData)
                     : '';
         }

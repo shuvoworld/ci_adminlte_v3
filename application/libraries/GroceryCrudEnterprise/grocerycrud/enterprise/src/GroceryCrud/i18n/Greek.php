@@ -47,8 +47,6 @@ return [
     'time_hour_text' => 'Ώρες',
     'time_minute_text' => 'Λεπτά',
     'time_second_text' => 'Δευτερόλεπτα',
-
-    /* Filtering (feature introduced in version 2.5.0) */
     'filtering_operator' => 'Σύνδεση φίλτρων με',
     'filtering_and_statement' => 'ΚΑΙ',
     'filtering_or_statement' => 'Ή',

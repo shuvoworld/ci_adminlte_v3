@@ -54,11 +54,12 @@ class GroceryCrud implements GroceryCrudInterface
     const FIELD_TYPE_MULTIPLE_SELECT_SEARCHABLE = 'multiselect_searchable';
     const FIELD_TYPE_MULTIPLE_SELECT_NATIVE = 'multiselect_native';
     const FIELD_TYPE_UPLOAD = 'upload';
+    const FIELD_TYPE_UPLOAD_MULTIPLE = 'upload-multiple';
     const FIELD_TYPE_BLOB = 'special_blob';
 
     const PREFIX_BLOB_UPLOAD = '__gcrud_upload';
 
-    const VERSION = '2.8.4';
+    const VERSION = '2.9.5';
 
 	/**
 	 * Specifying the datagrid columns that the end-user will see.
@@ -128,6 +129,11 @@ class GroceryCrud implements GroceryCrudInterface
 	 * @var array
 	 */
 	protected $_action_buttons = [];
+
+	/**
+	 * @var array
+	 */
+	protected $_action_buttons_multiple = [];
 
     /**
      * @var string
@@ -582,7 +588,6 @@ class GroceryCrud implements GroceryCrudInterface
 	public function __construct($config, $database = null)
 	{
         $this->_layout = new Layout($config);
-		$this->_cache = new Cache($config);
         $this->_validate = new Validate($config);
         $this->_database = $database;
 
@@ -1533,10 +1538,40 @@ class GroceryCrud implements GroceryCrudInterface
     }
 
     /**
+     * @param string $label
+     * @param string $cssClassIcon
+     * @param string $url
+     * @param bool $newTab
+     * @param string $idFieldQueryName
+     * @param string $querySeparator
+     * @return $this
+     */
+    public function setActionButtonMultiple($label, $cssClassIcon, $url, $newTab = false, $idFieldQueryName = 'id', $querySeparator = '?') {
+        $this->_action_buttons_multiple[] = (object)[
+            'label' => $label,
+            'iconCssClass' => $cssClassIcon,
+            'url' => $url,
+            'newTab' => $newTab,
+            'idFieldQueryName' => $idFieldQueryName,
+            'querySeparator' => $querySeparator,
+        ];
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getActionButtons() {
         return $this->_action_buttons;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getActionButtonsMultiple() {
+        return $this->_action_buttons_multiple;
     }
 
     public function setApiUrlPath($apiUrlPath)
@@ -1570,11 +1605,13 @@ class GroceryCrud implements GroceryCrudInterface
      * @param string $maxUploadSize
      * @return $this
      */
-    public function setFieldBlob($fieldName, $filenameField, $temporaryUploadDirectory, $maxUploadSize) {
+    public function setFieldBlob(string $fieldName, string $filenameField, string $temporaryUploadDirectory, string $maxUploadSize, array $options = []): GroceryCrud
+    {
         $this->fieldType($fieldName, GroceryCrud::FIELD_TYPE_BLOB, null, (object)[
             'filenameField' => $filenameField,
             'temporaryUploadDirectory' => $temporaryUploadDirectory,
-            'maxUploadSize' => $maxUploadSize
+            'maxUploadSize' => $maxUploadSize,
+            'extraOptions' => $options
         ]);
         $this->_blob_fields[] = $fieldName;
         $this->mapColumn($fieldName, $filenameField);
@@ -1625,19 +1662,38 @@ class GroceryCrud implements GroceryCrudInterface
     }
 
     /**
-     * @param string $fieldName
-     * @param string $uploadPath
-     * @param string $publicPath
+     * @param $fieldName
+     * @param $uploadPath
+     * @param $publicPath
+     * @param array $options
      * @return $this
      */
-	public function setFieldUpload($fieldName, $uploadPath, $publicPath)
-	{
+	public function setFieldUpload($fieldName, $uploadPath, $publicPath, array $options = []): GroceryCrud
+    {
         $this->fieldType($fieldName, 'upload', null, (object)[
             'uploadPath' => $uploadPath,
-            'publicPath' => $publicPath
+            'publicPath' => $publicPath,
+            'extraOptions' => $options
         ]);
 		return $this;
 	}
+
+    /**
+     * @param string $fieldName
+     * @param string $uploadPath
+     * @param string $publicPath
+     * @param array $options
+     * @return $this
+     */
+    public function setFieldUploadMultiple(string $fieldName, string $uploadPath, string $publicPath, array $options = []): GroceryCrud
+    {
+        $this->fieldType($fieldName, 'upload-multiple', null, (object)[
+            'uploadPath' => $uploadPath,
+            'publicPath' => $publicPath,
+            'extraOptions' => $options
+        ]);
+        return $this;
+    }
 
     public function setLanguagePath($languagePath = null)
     {
@@ -2357,11 +2413,6 @@ class GroceryCrud implements GroceryCrudInterface
         $this->_layout->setJsFile($file);
         return $this;
     }
-
-	public function getCache()
-	{
-		return $this->_cache;
-	}
 
 	public function getLayout()
 	{

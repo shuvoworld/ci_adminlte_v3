@@ -216,6 +216,7 @@ class DatagridState extends StateAbstract {
 
                 switch ($search['filter']) {
                     case self::FILTER_CONTAINS:
+                    case self::FILTER_HAS:
                         $this->{$filterOperator}[$search['name']][] = $search['value'];
                         break;
 
@@ -225,10 +226,6 @@ class DatagridState extends StateAbstract {
 
                     case self::FILTER_ENDS_WITH:
                         $this->{$filterOperator}[$search['name']][] = $search['value'] . '~';
-                        break;
-
-                    case self::FILTER_HAS:
-                        $this->{$filterOperator}[$search['name']][] = $search['value'];
                         break;
 
                     case self::FILTER_EQUALS:

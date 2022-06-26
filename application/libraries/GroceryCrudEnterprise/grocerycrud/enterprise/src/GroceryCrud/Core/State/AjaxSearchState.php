@@ -51,7 +51,8 @@ class AjaxSearchState extends StateAbstract {
                 $relation->tableName,
                 $relation->titleField,
                 $this->getWhereDependentRelation($relation->titleField, $searchValue),
-                $relation->orderBy
+                $relation->orderBy,
+                $fieldName
             );
         } else {
             throw new \Exception('field_name: "' . $fieldName . '" is not a depended relation field');

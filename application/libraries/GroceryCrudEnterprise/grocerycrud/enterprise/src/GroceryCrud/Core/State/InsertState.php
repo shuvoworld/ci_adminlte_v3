@@ -3,6 +3,7 @@ namespace GroceryCrud\Core\State;
 
 use GroceryCrud\Core\GroceryCrud as GCrud;
 use GroceryCrud\Core\GroceryCrud;
+use GroceryCrud\Core\Redirect\RedirectResponseInterface;
 use GroceryCrud\Core\Render\RenderAbstract;
 use GroceryCrud\Core\Error\ErrorMessageInteface;
 
@@ -95,7 +96,10 @@ class InsertState extends StateAbstract {
 
             $output = $this->setResponseStatusAndMessage($output, $operationResponse);
 
-            if ($operationResponse !== false && !($operationResponse instanceof ErrorMessageInteface)) {
+            if ($operationResponse !== false
+                && !($operationResponse instanceof ErrorMessageInteface)
+                && !($operationResponse instanceof RedirectResponseInterface)
+            ) {
                 $output->insertId = $operationResponse->insertId;
             }
         }

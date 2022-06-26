@@ -43,7 +43,8 @@ class ExportState extends DatagridState {
                     $relation->tableName,
                     $this->getOriginalRelationTitleField($relation),
                     $relation->where,
-                    $relation->orderBy
+                    $relation->orderBy,
+                    $fieldName
                 )
             );
             $relationalFields[] = $fieldName;
@@ -59,7 +60,8 @@ class ExportState extends DatagridState {
                     $relation->referrerTable,
                     $relation->referrerTitleField,
                     $relation->where,
-                    $relation->sortingFieldName
+                    $relation->sortingFieldName,
+                    $fieldName
                 )
             );
             $relationNtoNFields[] = $fieldName;
@@ -185,6 +187,12 @@ class ExportState extends DatagridState {
 
     public function render()
     {
+        if (!class_exists('ZipArchive')) {
+            throw new \Exception(
+                'ZipArchive class does not exist. This usually means that the zip extension for PHP is missing.'
+            );
+        }
+
         $output = $this->getFinalData();
 
         $data = $output->data;
@@ -257,7 +265,7 @@ class ExportState extends DatagridState {
                     }
 
                     if (in_array($field_name, $callbackColumnsFields)) {
-                        $field_value = trim(str_replace(["\n","\r", "="], '', strip_tags($field_value)));
+                        $field_value = trim(str_replace(["\n","\r", "="], '', strip_tags((string)$field_value)));
                     }
 
                     $activeSheet->setCellValue($column . $row_number, $field_value);

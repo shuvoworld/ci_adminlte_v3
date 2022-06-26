@@ -6,22 +6,6 @@ use GroceryCrud\Core\Render\RenderAbstract;
 
 class InitialState extends StateAbstract implements StateInterface
 {
-
-    public function getCachedData()
-    {
-        $render = new RenderAbstract();
-
-        $cache = $this->gCrud->getCache();
-
-        $output = $cache->getItem($this->getUniqueId() . '+data');
-
-        $render->output = $output;
-        $render->outputAsObject = json_decode($output);
-        $render->isJSONResponse = true;
-
-        return $render;
-    }
-
     public function render()
     {
         $this->setInitialData();
@@ -49,6 +33,7 @@ class InitialState extends StateAbstract implements StateInterface
         ];
 
         $actionButtons = $this->gCrud->getActionButtons();
+        $actionButtonsMultiple = $this->gCrud->getActionButtonsMultiple();
 
         $operations = (object) array(
             'add' => $this->gCrud->getLoadAdd(),
@@ -62,6 +47,7 @@ class InitialState extends StateAbstract implements StateInterface
             'print' => $this->gCrud->getLoadPrint(),
             'clone' => $this->gCrud->getLoadClone(),
             'actionButtons' => !empty($actionButtons),
+            'actionButtonsMultiple' => !empty($actionButtonsMultiple),
             'settings' => $this->gCrud->getLoadSettings(),
             'filters' => $this->gCrud->getLoadFilters()
         );
@@ -93,6 +79,8 @@ class InitialState extends StateAbstract implements StateInterface
         $data->operations = $operations;
         $data->extraConfiguration = $this->extraConfigurations();
 
+        $data->actionButtonsMultiple = $actionButtonsMultiple;
+
         $data = $this->addcsrfToken($data);
 
         return $data;
@@ -114,9 +102,25 @@ class InitialState extends StateAbstract implements StateInterface
             $data->hashInUrl = $config['hash_in_url'];
         }
 
+        if (array_key_exists('action_button_type', $config)) {
+            $data->actionButtonType = $config['action_button_type'];
+        }
+
         if (array_key_exists('open_in_modal', $config)) {
             $data->openInModal = $config['open_in_modal'];
         }
+
+        if (array_key_exists('actions_column_side', $config) && in_array($config['actions_column_side'], ['left', 'right'])) {
+            $data->leftSideActions = $config['actions_column_side'] === 'left';
+            $data->rightSideActions = $config['actions_column_side'] === 'right';
+        } else {
+            $data->leftSideActions = true;
+            $data->rightSideActions = false;
+        }
+
+        $data->rememberQuickSearch = array_key_exists('remember_quick_search', $config)
+            ? $config['remember_quick_search']
+            : false;
 
         $data->maxActionButtons = (object)[
             'mobile' =>
@@ -146,17 +150,6 @@ class InitialState extends StateAbstract implements StateInterface
     }
 
     public function getPrimaryKeyField() {
-        $cachedString = $this->getUniqueCacheName(self::WITH_TABLE_NAME) . '+primaryKeyField';
-        if ($this->config['backend_cache'] && $this->isInCache($cachedString)) {
-            return $this->getCacheItem($cachedString);
-        }
-
-        $primaryKey = $this->gCrud->getModel()->getPrimaryKeyField();
-
-        if ($this->config['backend_cache']) {
-            $this->gCrud->getCache()->setItem($cachedString, $primaryKey);
-        }
-
-        return $primaryKey;
+        return $this->gCrud->getModel()->getPrimaryKeyField();
     }
 }

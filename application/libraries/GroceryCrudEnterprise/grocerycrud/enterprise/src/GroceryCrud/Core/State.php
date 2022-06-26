@@ -16,7 +16,7 @@ class State
                 break;
 
             case 'post':
-                if (!empty($_GET['action']) && in_array($_GET['action'], ['upload', 'ajax-search'])) {
+                if (!empty($_GET['action']) && in_array($_GET['action'], ['upload', 'upload-multiple', 'ajax-search'])) {
                     $action = $_GET['action'];
                 } else {
                     $action = !empty($_POST['action']) ? $_POST['action'] : null;
@@ -66,6 +66,7 @@ class State
                 'remove-one',
                 'remove-multiple',
                 'upload',
+                'upload-multiple',
                 'delete-file',
                 'ajax-search'
             ])) {

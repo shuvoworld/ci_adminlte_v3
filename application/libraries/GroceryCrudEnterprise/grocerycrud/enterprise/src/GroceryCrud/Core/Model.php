@@ -1,22 +1,21 @@
 <?php
 namespace GroceryCrud\Core;
 
-use Zend\Db\Adapter\Profiler\ProfilerInterface;
 use GroceryCrud\Core\Profiler\FileProfiler;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Predicate;
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\Select;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Metadata\Metadata;
-use Zend\Db\Sql\Expression;
-use Zend\Db\Sql\Predicate\PredicateSet;
+
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Predicate;
+use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\Sql\Expression;
+use Laminas\Db\Sql\Predicate\PredicateSet;
+use Laminas\Db\Sql\TableIdentifier;
+use Laminas\Db\Sql\Where;
+use Laminas\Db\Adapter\Profiler\ProfilerInterface;
+
 use GroceryCrud\Core\Model\ModelInterface;
 use GroceryCrud\Core\Helpers\ArrayHelper;
 use GroceryCrud\Core\Model\ModelFieldType;
-
-use Zend\Db\Sql\TableIdentifier;
-use Zend\Db\Sql\Where;
 
 class Model implements ModelInterface
 {
@@ -46,6 +45,8 @@ class Model implements ModelInterface
     protected $_dbSchema = null;
     protected $_sequenceName = null;
 
+    protected $_optimizeSqlQueries = true;
+
     /**
      * @var string|array|null
      */
@@ -69,6 +70,12 @@ class Model implements ModelInterface
     public function setDefaultProfiler()
     {
         $this->setProfiler(new FileProfiler());
+
+        return $this;
+    }
+
+    public function setOptimizeSqlQueries($optimizeSqlQueries) {
+        $this->_optimizeSqlQueries = $optimizeSqlQueries;
 
         return $this;
     }
@@ -208,7 +215,7 @@ class Model implements ModelInterface
         return $columnNames;
     }
 
-    public function getRelationData($tableName, $titleField, $where = null, $orderBy = null) {
+    public function getRelationData($tableName, $titleField, $where = null, $orderBy = null, $relationFieldName = null) {
         $primaryKeyField = $this->getPrimaryKeyField($tableName);
 
         $titleFieldIsArray = is_array($titleField);
@@ -225,7 +232,10 @@ class Model implements ModelInterface
                 $select->order($titleField);
             }
         }
-        $select->from($this->getTableNameWithSchema($tableName));
+
+        $shortTableName = $this->getShortName($tableName, $relationFieldName);
+
+        $select->from([$shortTableName => $this->getTableNameWithSchema($tableName)]);
 
         if ($where !== null) {
 
@@ -253,11 +263,8 @@ class Model implements ModelInterface
         $selectString = $sql->buildSqlString($select);
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
         $relationData = [];
-        foreach ($resultSet as $row) {
+        foreach ($result as $row) {
             if ($titleFieldIsArray) {
                 $title = [];
                 foreach ($titleField as $subtitle) {
@@ -281,7 +288,7 @@ class Model implements ModelInterface
             $tableName = $this->tableName;
         }
 
-        // Is it already setted?
+        // Is the key already set?
         if (!empty($this->primaryKeys[$tableName])) {
             return $this->primaryKeys[$tableName];
         }
@@ -379,20 +386,7 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         }
 
-
-
-        $tableGateway = new Metadata($this->adapter);
-
-        $constraints = $tableGateway->getTable($tableName)->getConstraints();
-
-        foreach ($constraints AS $constraint) {
-            if ($constraint->isPrimaryKey()) {
-                $this->primaryKeys[$tableName] = $constraint->getColumns()[0];
-                return $this->primaryKeys[$tableName];
-            }
-        }
-
-        return null;
+        throw new \Exception("Database not supported");
     }
 
     public function splitFilterValue($filterValue) {
@@ -434,7 +428,13 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
     protected function _setWhereArray($filterName, $filterValue, $whereArray) {
         $whereComparison = $this->splitFilterValue($filterValue);
 
-        $whereArray[] = [$filterName . ' ' . $whereComparison['comparison'] . ' ?', $whereComparison['value']];
+        // When there is an empty string also check for NULL values as well
+        if ($whereComparison['value'] === '') {
+            $whereArray[] = ["( $filterName {$whereComparison['comparison']} ? OR $filterName IS NULL)", $whereComparison['value']];
+        } else {
+            $whereArray[] = [$filterName . ' ' . $whereComparison['comparison'] . ' ?', $whereComparison['value']];
+        }
+
 
         return $whereArray;
     }
@@ -629,11 +629,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
-        foreach ($resultSet as $row) {
-            return (int)$row->num;
+        foreach ($result as $row) {
+            return (int)$row['num'];
         }
 
         return 0;
@@ -663,11 +660,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
         $resultsArray = [];
-        foreach ($resultSet as $row) {
+        foreach ($result as $row) {
             $resultsArray[]  = $row;
         }
 
@@ -694,11 +688,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
         $selectString = $sql->buildSqlString($select);
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
         $resultsArray = [];
-        foreach ($resultSet as $row) {
+        foreach ($result as $row) {
             $resultsArray[]  = $row;
         }
 
@@ -724,10 +715,7 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
         $selectString = $sql->buildSqlString($select);
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
-        foreach ($resultSet as $row) {
+        foreach ($result as $row) {
             return $row;
         }
 
@@ -844,23 +832,7 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
             return $fieldTypes;
         }
 
-        $tableGateway = new Metadata($this->adapter);
-
-        $columns = $tableGateway->getTable($this->tableName)->getColumns();
-
-        $fieldTypes = [];
-        foreach ($columns as $column) {
-            $tmpColumn = new ModelFieldType();
-            $tmpColumn->isNullable = $column->getIsNullable();
-            $tmpColumn->dataType = $column->getDataType();
-            $tmpColumn->defaultValue = $column->getColumnDefault();
-            $tmpColumn->permittedValues = $column->getErrata('permitted_values');
-            $fieldTypes[$column->getName()] = $tmpColumn;
-        }
-
-        $this->_fieldTypes[$tableName] = $fieldTypes;
-
-        return $fieldTypes;
+        throw new \Exception("Database not supported");
     }
 
 
@@ -913,6 +885,11 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
     public function getShortName($tableName, $fieldName) {
         $shortName = substr($tableName, 0, 1);
+
+        if ($fieldName === null) {
+            return $shortName;
+        }
+
         $fieldNameUniqueKey = $shortName . '__' . $fieldName;
 
         if (!in_array($shortName, $this->_shortNames)) {
@@ -924,23 +901,27 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
             return $this->_shortNames[$fieldNameUniqueKey];
         }
 
+        // We are preventing having duplicate short names for the same unique key
         $this->_shortNames[$fieldNameUniqueKey] = $fieldNameUniqueKey;
 
         return $this->_shortNames[$fieldNameUniqueKey];
     }
 
     /**
-     * @param \Zend\Db\Sql\Select $select
+     * @param \Laminas\Db\Sql\Select $select
      * @return mixed
      */
     public function joinStatements($select)
     {
         foreach ($this->_relation_1_n as $relation) {
-            // For optimizing reasons we are joining the tables ONLY for 3 scenarios:
-            // 1. When we have an order by the field
-            // 2. The relation has a where statement
-            // 3. When we have a depended relation
-            if (array_key_exists($relation->fieldName, $this->_depended_relation) || $this->orderBy === $relation->fieldName || $relation->where !== null) {
+            // When we have the configuration value optimizeSqlQueries to true we are trying to avoid as much as
+            // possible to join the tables if it is not required.
+            // We are joining the tables for the following 4 scenarios:
+            // 1. When optimize SQL queries is set to off
+            // 2. When we have an order by field
+            // 3. The relation has a where statement
+            // 4. When we have a depended relation
+            if ($this->_optimizeSqlQueries === false || array_key_exists($relation->fieldName, $this->_depended_relation) || $this->orderBy === $relation->fieldName || $relation->where !== null) {
                 $shortNameForRelationTable = $this->getShortName($relation->tableName, $relation->fieldName);
 
                 $select->join(
@@ -969,8 +950,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
     }
 
     /**
-     * @param \Zend\Db\Sql\Select $select
-     * @return \Zend\Db\Sql\Select
+     * @param \Laminas\Db\Sql\Select $select
+     * @return \Laminas\Db\Sql\Select
      */
     public function extraJoinStatements($select)
     {
@@ -978,8 +959,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
     }
 
     /**
-     * @param \Zend\Db\Sql\Select $select
-     * @return \Zend\Db\Sql\Select
+     * @param \Laminas\Db\Sql\Select $select
+     * @return \Laminas\Db\Sql\Select
      */
     public function extraWhereStatements($select)
     {
@@ -988,8 +969,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
     /**
      * @param string $tableName
-     * @param \Zend\Db\Sql\Select $select
-     * @return \Zend\Db\Sql\Select
+     * @param \Laminas\Db\Sql\Select $select
+     * @return \Laminas\Db\Sql\Select
      */
     protected function extraJoinRelationalData($tableName, $select) {
         return $select;
@@ -997,16 +978,16 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
     /**
      * @param string $tableName
-     * @param \Zend\Db\Sql\Select $select
-     * @return \Zend\Db\Sql\Select
+     * @param \Laminas\Db\Sql\Select $select
+     * @return \Laminas\Db\Sql\Select
      */
     protected function extraWhereRelationalData($tableName, $select) {
         return $select;
     }
 
     /**
-     * @param \Zend\Db\Sql\Select $select
-     * @return \Zend\Db\Sql\Select
+     * @param \Laminas\Db\Sql\Select $select
+     * @return \Laminas\Db\Sql\Select
      */
     public function whereStatements($select)
     {
@@ -1090,11 +1071,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
         $resultsArray = [];
-        foreach ($resultSet as $row) {
+        foreach ($result as $row) {
             $resultsArray[]  = $row;
         }
 
@@ -1106,7 +1084,7 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
     }
 
     /**
-     * @param \Zend\Db\Sql\Select $select
+     * @param \Laminas\Db\Sql\Select $select
      * @param $sql
      * @return array
      */
@@ -1115,11 +1093,8 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         $result = $this->adapter->query($selectString, Adapter::QUERY_MODE_EXECUTE);
 
-        $resultSet = new ResultSet;
-        $resultSet->initialize($result);
-
-        $resultsArray = array();
-        foreach ($resultSet as $row) {
+        $resultsArray = [];
+        foreach ($result as $row) {
             $resultsArray[]  = $row;
         }
 
@@ -1243,7 +1218,7 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
 
         $primaryKeyValues = [];
         foreach ($results as $result) {
-            $primaryKeyValues[] = $result->$primaryKeyField;
+            $primaryKeyValues[] = $result[$primaryKeyField];
         }
 
         return $primaryKeyValues;
@@ -1333,20 +1308,18 @@ ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION;");
         if ($order_by !== null) {
             $sortingString = ($sorting === null) ? '' : ' ' . $sorting;
 
-            // For optimizing reasons we are joining the tables ONLY when we have an order by the field
             if ($this->isFieldWithRelation($order_by)) {
                 $relationField = $this->_relation_1_n[$order_by];
+                $shortNameForRelationTable = $this->getShortName($relationField->tableName, $relationField->fieldName);
 
-                if ($relationField->orderBy !== null) {
-                    $select->order($relationField->orderBy . $sortingString);
-                } else if (is_array($relationField->titleField)) {
+                if (is_array($relationField->titleField)) {
                     $orderingFields = [];
                     foreach ($relationField->titleField as $titleField) {
-                        $orderingFields[] = $relationField->tableName . '.' . $titleField . $sortingString;
+                        $orderingFields[] = $shortNameForRelationTable . '.' . $titleField . $sortingString;
                     }
                     $select->order($orderingFields);
                 } else {
-                    $order_by = $relationField->tableName . '.' . $relationField->titleField;
+                    $order_by = $shortNameForRelationTable . '.' . $relationField->titleField;
                     $select->order($order_by . $sortingString);
                 }
             } else {

@@ -53,7 +53,8 @@ class DependedRelationState extends StateAbstract {
                     [
                         $dependedRelations[$dependedFieldName]->fieldNameRelation => $searchValue
                     ],
-                    $relation->orderBy
+                    $relation->orderBy,
+                    $fieldName
                 );
             }
         }

@@ -47,8 +47,6 @@ return [
     'time_hour_text' => 'Часы',
     'time_minute_text' => 'Минуты',
     'time_second_text' => 'Секунды',
-
-    /* Filtering (feature introduced in version 2.5.0) */
     'filtering_operator' => 'Operator',
     'filtering_and_statement' => 'И',
     'filtering_or_statement' => 'ИЛИ',

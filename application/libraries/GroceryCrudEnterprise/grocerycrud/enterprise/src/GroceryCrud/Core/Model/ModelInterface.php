@@ -88,4 +88,6 @@ interface ModelInterface
      * @return string
      */
     public function getDbUniqueId();
+
+    public function setOptimizeSqlQueries($optimizeSqlQueries);
 }

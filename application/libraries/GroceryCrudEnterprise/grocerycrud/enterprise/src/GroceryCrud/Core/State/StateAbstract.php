@@ -5,11 +5,12 @@ namespace GroceryCrud\Core\State;
 use GroceryCrud\Core\Exceptions\Exception;
 use GroceryCrud\Core\GroceryCrud as GCrud;
 use GroceryCrud\Core\Helpers\ArrayHelper;
+use GroceryCrud\Core\Helpers\UploadHelper;
 use GroceryCrud\Core\Model;
 use GroceryCrud\Core\GroceryCrud;
 use GroceryCrud\Core\Error\ErrorMessageInteface;
 use GroceryCrud\Core\Model\ModelFieldType;
-use GroceryCrud\Core\Upload\Transliteration;
+use GroceryCrud\Core\Redirect\RedirectResponseInterface;
 use GroceryCrud\Core\Error\ErrorMessage;
 use GroceryCrud\Core\Exceptions\Exception as GCrudException;
 
@@ -69,6 +70,9 @@ class StateAbstract
 
     public function getConfigParameters()
     {
+        if ($this->config !== null) {
+            return $this->config;
+        }
         $config = $this->gCrud->getConfig();
 
         // Fallback when the date_format is not at the list or when empty
@@ -76,7 +80,17 @@ class StateAbstract
             $config['date_format'] = 'uk-date';
         }
 
-        return $config;
+        if (!array_key_exists('optimize_sql_queries', $config)) {
+            $config['optimize_sql_queries'] = true;
+        }
+
+        if (!array_key_exists('remember_quick_search', $config)) {
+            $config['remember_quick_search'] = false;
+        }
+
+        $this->config = $config;
+
+        return $this->config;
     }
 
     public function addcsrfToken($output) {
@@ -220,8 +234,8 @@ class StateAbstract
 
     public function deleteFile($filename, $path) {
         // Transform filename for security issues
-        $extension = $this->getExtension($filename);
-        $filename = $this->transformRawFilename($this->removeExtension($filename));
+        $extension = UploadHelper::getExtension($filename);
+        $filename = UploadHelper::transformRawFilename(UploadHelper::removeExtension($filename));
 
         if ($extension) {
             $filename .= '.' . $extension;
@@ -262,32 +276,6 @@ class StateAbstract
                    $model->setPrimaryKey($primaryKey, $tableName);
                }
         }
-    }
-
-    public function getExtension($filename) {
-        $splittedFilename = explode('.', $filename);
-        return end($splittedFilename);
-    }
-
-    public function removeExtension($filename) {
-        return preg_replace('/\\.[^.\\s]{3,4}$/', '', $filename);
-    }
-
-    public function transformRawFilename($filename) {
-        // Filter any non existance characters. Filter XSS vulnerability
-        // Also trim multiple whitespaces in a row
-        $filename = trim(filter_var($filename));
-
-        // Covert Translite characters
-        $filename = Transliteration::convertFilename($filename);
-
-        // Replace dot and empty space with dash
-        $filename = str_replace(['.', ' '], '-', $filename);
-
-        // Completely remove any illegal characters
-        $filename = preg_replace("/([^a-zA-Z0-9\-\_ ]+?){1}/i", '', $filename);
-
-        return $filename;
     }
 
     public function getMappedColumns() {
@@ -396,6 +384,17 @@ class StateAbstract
         return $data;
     }
 
+    /**
+     * @return array|string[]
+     */
+    public function getGlobalAllowedFileTypes():array {
+        $config = $this->gCrud->getConfig();
+
+        return array_key_exists('upload_allowed_file_types', $config) && is_array($config['upload_allowed_file_types'])
+                ? $config['upload_allowed_file_types']
+                : $this->getDefaultUploadAllowedFileTypes();
+    }
+
     public function uploadDataIfRequired($fieldTypes) {
         $blobFields = [];
         $uploadData = [];
@@ -406,6 +405,8 @@ class StateAbstract
             }
         }
 
+        $globalAllowedFileTypes = $this->getGlobalAllowedFileTypes();
+
         foreach ($blobFields as $fieldName => $fieldType) {
             if (array_key_exists($fieldName . GroceryCrud::PREFIX_BLOB_UPLOAD, $_FILES)) {
                 // Upload file
@@ -413,7 +414,16 @@ class StateAbstract
                 $uploadFieldName = $fieldName . GroceryCrud::PREFIX_BLOB_UPLOAD;
                 $uploadPath = $fieldType->options->temporaryUploadDirectory;
                 $maxUploadSize = $fieldType->options->maxUploadSize;
-                $result = $this->upload($uploadFieldName, $uploadPath, $maxUploadSize);
+
+                $minUploadSize = array_key_exists('minUploadSize', $fieldType->options->extraOptions)
+                    ? $fieldType->options->extraOptions['minUploadSize']:
+                    UploadState::DEFAULT_MIN_UPLOAD_SIZE;
+
+                $allowedFileTypes = array_key_exists('allowedFileTypes', $fieldType->options->extraOptions)
+                    ? $fieldType->options->extraOptions['allowedFileTypes']:
+                    $globalAllowedFileTypes;
+
+                $result = $this->upload($uploadFieldName, $uploadPath, $maxUploadSize, $minUploadSize, $allowedFileTypes);
 
                 if ($this->hasErrorResponse($result)) {
                     throw new GCrudException($result->getMessage());
@@ -439,23 +449,18 @@ class StateAbstract
     }
 
     /**
-     * $maxUploadSize: Ensure file is no larger than maxUploadSize (use "B", "K", M", or "G")
+     * File Upload
      *
-     * @param $fieldName
-     * @param $uploadPath
+     * @param string $fieldName
+     * @param string $uploadPath
      * @param string $maxUploadSize
+     * @param string $minUploadSize
+     * @param array $allowedFileTypes
      * @return bool|object
      * @throws \Exception
      */
-    public function upload($fieldName, $uploadPath, $maxUploadSize = '20M')
+    public function upload(string $fieldName, string $uploadPath, string $maxUploadSize, string $minUploadSize, array $allowedFileTypes)
     {
-        $config = $this->gCrud->getConfig();
-
-        $allowedFileTypes =
-            array_key_exists('upload_allowed_file_types', $config)
-                ? $config['upload_allowed_file_types']
-                : $this->getDefaultUploadAllowedFileTypes();
-
         $storage = new \Upload\Storage\FileSystem($uploadPath);
         $file = new \Upload\File($fieldName, $storage);
 
@@ -465,8 +470,7 @@ class StateAbstract
             return false;
         }
 
-        $filename = $this->removeExtension($filename);
-        $filename = $this->transformRawFilename($filename);
+        $filename = UploadHelper::transformRawFilename(UploadHelper::removeExtension($filename));
 
         if (file_exists($uploadPath . '/' . $filename . '.' . $file->getExtension())) {
             $filename = $filename . '-' .substr(uniqid(), -5);
@@ -478,8 +482,8 @@ class StateAbstract
         $file->addValidations(array(
             new \Upload\Validation\Extension($allowedFileTypes),
 
-            // Ensure file is no larger than 20M (use "B", "K", M", or "G")
-            new \Upload\Validation\Size($maxUploadSize)
+            // Use "B", "K", M", or "G". For example 20M = 20 Mega Bytes
+            new \Upload\Validation\Size($maxUploadSize, $minUploadSize)
         ));
 
         // Enable all errors
@@ -528,6 +532,45 @@ class StateAbstract
         return $outputData;
     }
 
+    public function enhanceInsertFormOutputData($outputData) {
+        $relations = $this->gCrud->getRelations1toMany();
+
+        $dependedRelations = $this->gCrud->getDependedRelation();
+
+        foreach ($dependedRelations as $dependedRelation) {
+            $fieldName = $dependedRelation->fieldName;
+            $relation = $relations[$fieldName];
+            $fieldNameRelation = $dependedRelation->fieldNameRelation;
+            $dependencyFromField = $dependedRelation->dependencyFromField;
+
+            $dependencyRelationValue = null;
+
+            if (!empty($outputData[$dependencyFromField])) {
+                $dependencyRelationValue = is_object($outputData[$dependencyFromField])
+                    ? $outputData[$dependencyFromField]->value
+                    : $outputData[$dependencyFromField];
+            }
+
+            $permittedValues = !empty($dependencyRelationValue) ?
+                $this->getRelationalData(
+                    $relation->tableName,
+                    $relation->originalTitleField,
+                    [
+                        $fieldNameRelation => $dependencyRelationValue
+                    ],
+                    $relation->orderBy,
+                    $fieldName
+                ) : [];
+
+            $outputData[$fieldName] = (object)[
+                'value' => $outputData[$fieldName],
+                'permittedValues' => $permittedValues
+            ];
+        }
+
+        return $outputData;
+    }
+
     public function enhanceFormOutputData($outputData, $primaryKeyValue) {
         $model = $this->gCrud->getModel();
         $relationNtoN = $this->gCrud->getRelationNtoN();
@@ -571,7 +614,8 @@ class StateAbstract
                                 ? $outputData[$dependencyFromField]->value
                                 : $outputData[$dependencyFromField]
                     ],
-                    $relation->orderBy
+                    $relation->orderBy,
+                    $fieldName
                 )
             ];
         }
@@ -583,7 +627,10 @@ class StateAbstract
 
         if ($callbackResult instanceof ErrorMessageInteface) {
             $output->message = $callbackResult->getMessage();
-            $output->status  = 'failure';
+            $output->status = 'failure';
+        } else if ($callbackResult instanceof RedirectResponseInterface) {
+            $output->url = $callbackResult->getUrl();
+            $output->status  = 'redirect';
         } else {
             $output->message = $callbackResult === false ? 'Unknown error' : 'Success';
             $output->status = $callbackResult === false ? 'failure' : 'success';
@@ -606,7 +653,7 @@ class StateAbstract
                     continue;
                 }
 
-                $columnValue = trim(str_replace(["\n","\r", "="], '', strip_tags($columnValue)));
+                $columnValue = trim(str_replace(["\n","\r", "="], '', strip_tags((string)$columnValue)));
             }
         }
 
@@ -710,8 +757,34 @@ class StateAbstract
 
     }
 
+    /**
+     * @return array|null
+     */
+    public function getFieldNamesWithoutCharacterLimiter() {
+        $fieldTypes = $this->getFieldTypes();
+        $fieldNamesOutput = [];
+
+        foreach ($fieldTypes as $fieldName => $fieldType) {
+            switch ($fieldType->dataType) {
+                case GroceryCrud::FIELD_TYPE_UPLOAD_MULTIPLE:
+                case GroceryCrud::FIELD_TYPE_UPLOAD:
+                    $fieldNamesOutput[$fieldName] = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (empty($fieldNamesOutput)) {
+            return null;
+        }
+
+        return $fieldNamesOutput;
+    }
+
     public function enhanceColumnResults($results)
     {
+        $skipCharacterLimiterFields = $this->getFieldNamesWithoutCharacterLimiter();
         $primaryKeyName = $this->getPrimaryKeyName();
 
         $callbackColumns = $this->gCrud->getCallbackColumns();
@@ -725,7 +798,7 @@ class StateAbstract
 
         $config = $this->getConfigParameters();
 
-        $char_limiter = $config['column_character_limiter'];
+        $characterLimiter = $config['column_character_limiter'];
 
         $dependedRelations = $this->gCrud->getDependedRelation();
         $dependedRelationsIds = [];
@@ -745,11 +818,19 @@ class StateAbstract
                 if (isset($callbackColumns[$columnName])) {
                     $columnValue = $callbackColumns[$columnName]($columnValue, $result);
                 } else if ($dateNeedsFormatting && in_array($columnName, $dateColumns)) {
-                    $columnValue = preg_replace($sqlDateRegex, $formatFromSql, $columnValue);
+                    $columnValue = $columnValue ? preg_replace($sqlDateRegex, $formatFromSql, $columnValue) : "";
                 } else {
-                    $columnValue = strip_tags($columnValue);
-                    if ($char_limiter > 0 && (mb_strlen($columnValue, 'UTF-8') > $char_limiter)) {
-                        $columnValue = mb_substr($columnValue, 0 , $char_limiter - 1, 'UTF-8') . '...';
+                    $columnValue = $columnValue ? strip_tags($columnValue) : "";
+                    if (
+                        (
+                            // As this is a heavy process, for performance reasons we are doing multiple checks
+                            $skipCharacterLimiterFields === null ||
+                            !isset($skipCharacterLimiterFields[$columnName])
+                        ) &&
+                        $characterLimiter > 0 &&
+                        (mb_strlen($columnValue, 'UTF-8') > $characterLimiter)
+                    ) {
+                        $columnValue = mb_substr($columnValue, 0 , $characterLimiter - 1, 'UTF-8') . '...';
                     }
                     if (array_key_exists($columnName, $dependedRelations) && $columnValue) {
                         $dependedRelationsIds[$columnName][] = $columnValue;
@@ -787,7 +868,9 @@ class StateAbstract
                     'IN_ARRAY' => [
                         $relation->relationPrimaryKey => $dependedRelationsIds[$fieldName]
                     ]
-                ]
+                ],
+                null,
+                $fieldName
             ));
         }
 
@@ -950,19 +1033,9 @@ class StateAbstract
     }
 
     public function getColumnNames() {
-        $config = $this->getConfigParameters();
         $model = $this->gCrud->getModel();
 
-        $cachedString = $this->getUniqueCacheName(self::WITH_TABLE_NAME) .'+columnNames';
-        if ($config['backend_cache'] && $this->isInCache($cachedString)) {
-            $columnNames = json_decode($this->getCacheItem($cachedString));
-        } else {
-            $columnNames = $model->getColumnNames();
-
-            if ($config['backend_cache']) {
-                $this->gCrud->getCache()->setItem($cachedString, json_encode($columnNames));
-            }
-        }
+        $columnNames = $model->getColumnNames();
 
         foreach ($this->gCrud->getRelationNtoN() as $fieldName => $fieldInfo) {
             $columnNames[] = $fieldName;
@@ -996,45 +1069,18 @@ class StateAbstract
 
     public function getPrimaryKeyName($dbTableNameRaw = null)
     {
-        $config = $this->getConfigParameters();
-        $primaryKeyName = null;
-
         $dbTableName = $dbTableNameRaw !== null ? $dbTableNameRaw : $this->gCrud->getDbTableName();
-        $cacheUniqueId = $this->getUniqueCacheName() . '+' . $dbTableName;
 
-        if (!$config['backend_cache'] || $this->gCrud->getCache()->getItem($cacheUniqueId . '+primaryKeyField') === null) {
-            $primaryKeyName = $this->gCrud->getModel()->getPrimaryKeyField($dbTableName);
-
-            if ($config['backend_cache']) {
-                $this->gCrud->getCache()->setItem($cacheUniqueId . '+primaryKeyField', $primaryKeyName);
-            }
-        } else {
-            $primaryKeyName = $this->gCrud->getCache()->getItem($cacheUniqueId . '+primaryKeyField');
-        }
-
-        return $primaryKeyName;
+        return $this->gCrud->getModel()->getPrimaryKeyField($dbTableName);
     }
 
     public function removePrimaryKeyFromList($fieldList)
     {
-        if(($key = array_search($this->getPrimaryKeyName(), $fieldList)) !== false) {
-            unset($fieldList[$key]);
+        if(($primaryKeyIndex = array_search($this->getPrimaryKeyName(), $fieldList)) !== false) {
+            array_splice($fieldList, $primaryKeyIndex, 1);
         }
 
         return $fieldList;
-    }
-
-    public function getUniqueCacheName($extraInfo = null)
-    {
-        $model = $this->gCrud->getModel();
-
-        $finalString = $model->getDbUniqueId();
-
-        if ($extraInfo === self::WITH_TABLE_NAME) {
-            $finalString .= '+' . $this->gCrud->getDbTableName();
-        }
-
-        return $finalString;
     }
 
     /**
@@ -1103,7 +1149,7 @@ class StateAbstract
         return strstr($titleField, "{");
     }
 
-    public function getRelationalData($tableName, $titleField , $where, $orderBy = null) {
+    public function getRelationalData($tableName, $titleField , $where, $orderBy = null, $relationFieldName = null) {
         $model = $this->gCrud->getModel();
 
         // In case we have already cached the primary key for the relational data
@@ -1125,7 +1171,8 @@ class StateAbstract
             $tableName,
             $columns,
             $where,
-            $orderBy
+            $orderBy,
+            $relationFieldName
         );
 
         if ($hasMultipleFields) {
@@ -1179,22 +1226,11 @@ class StateAbstract
             return $this->fieldTypesLight;
         }
 
-        $config = $this->getConfigParameters();
         $model = $this->gCrud->getModel();
 
         $dbTableName = $this->gCrud->getDbTableName();
-        $cacheUniqueId = $this->getUniqueCacheName(self::WITH_TABLE_NAME);
 
-        // Not in the cache? Then create it!
-        if (!$config['backend_cache'] || $this->gCrud->getCache()->getItem($cacheUniqueId . '+fieldTypes') === null) {
-            $fieldTypes = $model->getFieldTypes($dbTableName);
-
-            if ($config['backend_cache']) {
-                $this->gCrud->getCache()->setItem($cacheUniqueId . '+fieldTypes', json_encode($fieldTypes));
-            }
-        } else {
-            $fieldTypes = (array)json_decode($this->gCrud->getCache()->getItem($cacheUniqueId . '+fieldTypes'));
-        }
+        $fieldTypes = $model->getFieldTypes($dbTableName);
 
         $relations = $this->gCrud->getRelations1toMany();
         $dependedRelations = $this->gCrud->getDependedRelation();
@@ -1221,7 +1257,8 @@ class StateAbstract
                             $relation->tableName,
                             $relation->originalTitleField,
                             $relation->where,
-                            $relation->orderBy
+                            $relation->orderBy,
+                            $fieldName
                         );
 
                         $fieldTypes[$fieldName]->permittedValues = $relationalData;
@@ -1246,7 +1283,8 @@ class StateAbstract
                     $relation->referrerTable,
                     $relation->referrerTitleField,
                     $relation->where,
-                    $relation->sortingFieldName
+                    $relation->sortingFieldName,
+                    $fieldName
                 );
             }
         }
@@ -1290,6 +1328,7 @@ class StateAbstract
         foreach ($fieldTypes as $fieldName => &$field) {
             $field->isReadOnly = property_exists($field, 'isReadOnly') ? $field->isReadOnly : false;
             $field->isSearchable = !in_array($fieldName, $unsetSearchColumns);
+            $field->hasOrdering = $this->hasOrdering($field->dataType);
         }
 
         if ($includePermittedValues) {
@@ -1311,12 +1350,18 @@ class StateAbstract
     {
         $model = $this->gCrud->getModel();
         if ($model === null) {
-            $config = $this->gCrud->getDatabaseConfig();
-            if ($config === null) {
-                throw new Exception('You need to add a configuration file first');
+            $databaseConfig = $this->gCrud->getDatabaseConfig();
+            if ($databaseConfig === null) {
+                throw new \Exception('You need to add a database configuration file first');
             }
-            $model = new Model($config);
+            $model = new Model($databaseConfig);
             $this->gCrud->setModel($model);
+        }
+
+        $config = $this->gCrud->getConfig();
+
+        if (array_key_exists('optimize_sql_queries', $config)) {
+            $this->gCrud->getModel()->setOptimizeSqlQueries($config['optimize_sql_queries']);
         }
     }
 
@@ -1443,6 +1488,53 @@ class StateAbstract
         return $fieldTypesEditForm;
     }
 
+    public function hasOrdering($fieldType) {
+
+        switch ($fieldType) {
+            case 'varchar':
+                return true;
+            case GroceryCrud::FIELD_TYPE_DROPDOWN:
+            case GroceryCrud::FIELD_TYPE_DROPDOWN_WITH_SEARCH:
+            case GroceryCrud::FIELD_TYPE_MULTIPLE_SELECT_NATIVE:
+            case GroceryCrud::FIELD_TYPE_MULTIPLE_SELECT_SEARCHABLE:
+            case 'relational_n_n':
+            case 'native_relational_n_n':
+                return false;
+            case 'relational':
+            case GroceryCrud::FIELD_TYPE_RELATIONAL_NATIVE:
+            case 'depended_relational':
+                $config = $this->getConfigParameters();
+                return  $config['optimize_sql_queries'] === false;
+        }
+
+        // Default true
+        return true;
+
+        /*
+         *             const isDropdown = (
+                fieldType === 'dropdown' ||
+                fieldType === 'dropdown_search' ||
+                fieldType === 'multiselect_searchable' ||
+                fieldType === 'multiselect_native'
+            );
+            const isRelational = (
+                fieldType === 'relational' ||
+                fieldType === 'relational_native' ||
+                fieldType === 'depended_relational'
+            );
+            const isNtoNRelational = (
+                fieldType === 'relational_n_n' ||
+                fieldType === 'native_relational_n_n'
+            );
+
+            return (
+                !isRelational &&
+                !isNtoNRelational &&
+                !isDropdown
+            );
+         * */
+    }
+
     public function getFieldTypeColumns() {
         $fieldTypeColumns = $this->gCrud->getFieldTypeColumns();
         $callbackColumns  = $this->gCrud->getCallbackColumns();
@@ -1457,6 +1549,7 @@ class StateAbstract
 
         foreach ($fieldTypeColumns as $fieldName => $fieldObject) {
             $fieldObject->isSearchable = !in_array($fieldName, $unsetSearchColumns);
+            $fieldObject->hasOrdering = $this->hasOrdering($fieldObject->dataType);
             $fieldTypeColumns[$fieldName] = $fieldObject;
         }
 
@@ -1612,14 +1705,6 @@ class StateAbstract
         }
 
         return $transformedList;
-    }
-
-    public function isInCache($itemAsString) {
-        return $this->gCrud->getCache()->getItem($itemAsString) !== null;
-    }
-
-    public function getCacheItem($itemAsString) {
-        return $this->gCrud->getCache()->getItem($itemAsString);
     }
 
     public function getUniqueId() {

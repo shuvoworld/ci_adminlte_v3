@@ -4,62 +4,40 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2
+class ComposerStaticInitb3afd6ad87b0b437edf6814dc16d9260
 {
     public static $prefixLengthsPsr4 = array (
-        'Z' => 
-        array (
-            'Zend\\Stdlib\\' => 12,
-            'Zend\\ServiceManager\\' => 20,
-            'Zend\\Serializer\\' => 16,
-            'Zend\\Json\\' => 10,
-            'Zend\\Hydrator\\' => 14,
-            'Zend\\EventManager\\' => 18,
-            'Zend\\Db\\' => 8,
-            'Zend\\Cache\\' => 11,
-        ),
         'V' => 
         array (
             'Valitron\\' => 9,
         ),
+        'L' => 
+        array (
+            'Laminas\\Stdlib\\' => 15,
+            'Laminas\\Db\\' => 11,
+        ),
+        'J' => 
+        array (
+            'Johnny\\TestProject\\' => 19,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Zend\\Stdlib\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-stdlib/src',
-        ),
-        'Zend\\ServiceManager\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-servicemanager/src',
-        ),
-        'Zend\\Serializer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-serializer/src',
-        ),
-        'Zend\\Json\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-json/src',
-        ),
-        'Zend\\Hydrator\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-hydrator/src',
-        ),
-        'Zend\\EventManager\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-eventmanager/src',
-        ),
-        'Zend\\Db\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-db/src',
-        ),
-        'Zend\\Cache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-cache/src',
-        ),
         'Valitron\\' => 
         array (
             0 => __DIR__ . '/..' . '/vlucas/valitron/src/Valitron',
+        ),
+        'Laminas\\Stdlib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laminas/laminas-stdlib/src',
+        ),
+        'Laminas\\Db\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laminas/laminas-db/src',
+        ),
+        'Johnny\\TestProject\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
     );
 
@@ -68,7 +46,7 @@ class ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2
         array (
             'Upload' => 
             array (
-                0 => __DIR__ . '/..' . '/codeguy/upload/src',
+                0 => __DIR__ . '/..' . '/scoumbourdis/upload/src',
             ),
         ),
         'P' => 
@@ -87,12 +65,17 @@ class ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2
         ),
     );
 
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitf6c78c05cbe8962d4c04d37182cf20b2::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb3afd6ad87b0b437edf6814dc16d9260::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb3afd6ad87b0b437edf6814dc16d9260::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitb3afd6ad87b0b437edf6814dc16d9260::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitb3afd6ad87b0b437edf6814dc16d9260::$classMap;
 
         }, null, ClassLoader::class);
     }

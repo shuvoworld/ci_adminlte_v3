@@ -1,11 +1,9 @@
-<?php
-
-namespace GroceryCrud\Core\Helpers;
-
+<?php namespace GroceryCrud\Core\Helpers;
 
 class ArrayHelper
 {
-    public static function array_reject_value(array &$arrayToFilter, $deleteValue) {
+    public static function array_reject_value(array &$arrayToFilter, $deleteValue): array
+    {
         $filteredArray = array();
 
         foreach ($arrayToFilter as $key => $value) {
@@ -17,8 +15,8 @@ class ArrayHelper
         return $filteredArray;
     }
 
-    public static function array_reject(array &$arrayToFilter, callable $rejectCallback) {
-
+    public static function array_reject(array &$arrayToFilter, callable $rejectCallback): array
+    {
         $filteredArray = array();
 
         foreach ($arrayToFilter as $key => $value) {

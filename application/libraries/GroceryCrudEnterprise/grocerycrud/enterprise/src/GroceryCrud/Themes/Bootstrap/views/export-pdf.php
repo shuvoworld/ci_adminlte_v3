@@ -14,7 +14,7 @@
         margin: 0;
     }
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        font-family: Arial;
         padding: 0 5px;
         margin: 0;
     }
@@ -69,27 +69,33 @@
         <tr>
             <?php foreach ($columns as $column) {
                 $fieldName = $column->name;
-                if (!isset($row[$fieldName]) || !is_string($row[$fieldName])) {
-                    continue;
+                if (!empty($row[$fieldName]) && is_string($row[$fieldName])) {
+                    ?><td><?php echo $row[$fieldName]; ?></td><?php
+                } else if (is_array($row[$fieldName])) {
+                    ?><td><?php echo implode(', ', $row[$fieldName]); ?></td><?php
+                } else {
+                    ?><td>&nbsp;</td><?php
                 }
-
-                $fieldValue = $row[$fieldName];
-                ?>
-                <td><?php echo $fieldValue; ?></td>
-            <?php } ?>
+            } ?>
         </tr>
     <?php } ?>
     </tbody>
 </table>
 <iframe id="main-iframe" class="pdf-fullpage" style=""></iframe>
-<script src="<?php echo $this->_assetsFolder;?>js/libraries/jspdf.min.js"></script>
-<script src="<?php echo $this->_assetsFolder;?>js/libraries/jspdf.plugin.autotable.js"></script>
+<script src="<?php echo $this->_assetsFolder;?>js/libraries/jspdf/jspdf.min.js"></script>
+<script src="<?php echo $this->_assetsFolder;?>js/libraries/jspdf/Roboto-Regular-normal.js"></script>
+<script src="<?php echo $this->_assetsFolder;?>js/libraries/jspdf/jspdf.plugin.autotable.js"></script>
 <script>
     var doc = new jsPDF();
+
     doc.autoTable({
         headStyles: {
             fillColor: '#ffffff',
-            textColor: '#111111'
+            textColor: '#111111',
+            font: 'Roboto-Regular'
+        },
+        bodyStyles: {
+            font: 'Roboto-Regular'
         },
         html: '#gc-pdf-table'
     });

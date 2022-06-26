@@ -47,8 +47,6 @@ return [
     'time_hour_text' => 'Hora',
     'time_minute_text' => 'Minuto',
     'time_second_text' => 'Segundo',
-
-    /* Filtering (feature introduced in version 2.5.0) */
     'filtering_operator' => 'Operador',
     'filtering_and_statement' => 'E',
     'filtering_or_statement' => 'OU',

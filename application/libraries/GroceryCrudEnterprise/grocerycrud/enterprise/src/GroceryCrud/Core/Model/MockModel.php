@@ -129,4 +129,9 @@ class MockModel implements ModelInterface
     {
         // TODO: Implement setRelations1ToN() method.
     }
+
+    public function setOptimizeSqlQueries($optimizeSqlQueries)
+    {
+        // TODO: Implement setOptimizeSqlQueries() method.
+    }
 }

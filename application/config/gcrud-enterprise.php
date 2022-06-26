@@ -9,9 +9,6 @@ return [
     // This is the assets folder where all the JavaScript, CSS, images and font files are located
     'assets_folder' => base_url() . 'assets/grocery-crud/',
 
-    // There are only three choices: "uk-date" (dd/mm/yyyy), "us-date" (mm/dd/yyyy) or "sql-date" (yyyy-mm-dd)
-    'date_format' => 'sql-date',
-
     // The default per page when a user firstly see a list page
     'default_per_page'	=> 10,
 
@@ -22,12 +19,8 @@ return [
     // The environment is important so we can have specific configurations for specific environments
     'environment' => 'development',
 
-    // The default skin that Grocery CRUD will use. Currently choose between 'bootstrap-v3' and 'bootstrap-v4'
-    'skin' => 'bootstrap-v4',
-
-    // This is basically in order to have some basic cache for the initial calls mainly for field types
-    // of a database table
-    'backend_cache' => false,
+    // Currently you can choose between 'bootstrap-v3', 'bootstrap-v4' and 'bootstrap-v5'
+    'skin' => 'bootstrap-v5',
 
     'xss_clean' => false,
 
@@ -49,6 +42,10 @@ return [
     // In case you would like to switch this functionality to off change this to false.
     'hash_in_url' => true,
 
+    // The button style that we have for the action buttons at the datagrid (list) page
+    // Choose between 'icon', 'text', 'icon-text'
+    'action_button_type' => 'icon-text',
+
     // The maximum number of buttons that we would like to have for the actions buttons.
     // If the number of buttons exceeds this number then the last button on the right
     // is going to change into a "More" dropdown button.
@@ -59,20 +56,17 @@ return [
         'desktop' => 2
     ],
 
-    // For more read http://framework.zend.com/manual/current/en/modules/zend.cache.storage.adapter.html
-    // If you are not sure about how to use it, you can just change the ttl value (time to live) and
-    // the file path of the cache
-    'cache' => [
-        'adapter' => [
-            'name'    => 'filesystem',
-            'options' => [
-                'namespace' => 'gcrud',
-                'ttl' => 3600 * 24 * 30 * 6,
-                'cache_dir' => realpath(__DIR__ . '/Cache/')
-            ],
-        ],
-        'plugins' => [
-            'exception_handler' => ['throw_exceptions' => false],
-        ],
-    ],
+    // Choose between 'left' or 'right'
+    'actions_column_side' => 'left',
+
+    // We have noticed that especially after using setRelation within a table that had more than 10K rows
+    // that the datagrid was getting slower. For that reason we have optimized SQL wherever possible, and we
+    // also have disabled the ordering for setRelation fields.  Keep in mind that the optimization of the queries
+    // can be up to 20x faster!! Especially in big tables (e.g. with 1 million rows).
+    // In case you would like though to use the ordering for the setRelation field, and you don't have big tables
+    // you can set this to `false` and you will probably not notice any difference
+    'optimize_sql_queries' => true,
+
+    // Remember the quick search upon refresh. The search information is stored in the browser local storage
+    'remember_quick_search' => false,
 ];

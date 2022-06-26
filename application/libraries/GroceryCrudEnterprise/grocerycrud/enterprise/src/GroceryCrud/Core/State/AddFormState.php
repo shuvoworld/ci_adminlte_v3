@@ -64,7 +64,7 @@ class AddFormState extends StateAbstract {
         $output = $this->setResponseStatusAndMessage($output, $result);
 
         if ($output->status === 'success') {
-            $output->data = $result;
+            $output->data = $this->enhanceInsertFormOutputData($result);
         }
 
         $output = $this->addcsrfToken($output);

@@ -57,14 +57,14 @@
         <tr>
             <?php foreach ($columns as $column) {
                 $fieldName = $column->name;
-                if (!isset($row[$fieldName]) || !is_string($row[$fieldName])) {
-                    continue;
+                if (!empty($row[$fieldName]) && is_string($row[$fieldName])) {
+                    ?><td><?php echo $row[$fieldName]; ?></td><?php
+                } else if (is_array($row[$fieldName])) {
+                    ?><td><?php echo implode(', ', $row[$fieldName]); ?></td><?php
+                } else {
+                    ?><td>&nbsp;</td><?php
                 }
-
-                $fieldValue = $row[$fieldName];
-                ?>
-                <td><?php echo $fieldValue; ?></td>
-            <?php } ?>
+            } ?>
         </tr>
     <?php } ?>
     </tbody>
