@@ -1,0 +1,3 @@
+{
+    "php-cs-fixer.configFile": "${workspaceFolder}/.php_cs.dist"
+}

@@ -80,6 +80,7 @@ $db['default'] = array(
 	'password' => '',
 	'database' => 'ci_adminlte_v3',
 	'dbdriver' => 'mysqli',
+	'port' => '3307',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
